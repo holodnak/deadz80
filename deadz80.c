@@ -973,10 +973,11 @@ __inline void step_dd()
 	case 0xCB:	step_ddcb(); break;
 	case 0xE1:	//pop IX
 		POP16(IX);
+		CYCLES += 14;
 		break;
 	case 0xE5:	//push IX
 		PUSH16(IX);
-		CYCLES += 11;
+		CYCLES += 15;
 		break;
 	default:
 		printf("bad DD opcode $%02X\n", opcode);
@@ -992,11 +993,11 @@ __inline void step_ed()
 	unsigned long ltmp;
 
 	switch (opcode) {
-	case 0x42:	SBC16(HL, BC);	CYCLES += 14;	break;	//sbc hl,bc
-	case 0x52:	SBC16(HL, DE);	CYCLES += 14;	break;	//sbc hl,de
-	case 0x62:	SBC16(HL, HL);	CYCLES += 14;	break;	//sbc hl,hl
-	case 0x72:	SBC16(HL, SP);	CYCLES += 14;	break;	//sbc hl,hl
-	case 0x7A:	ADC16(HL, SP);	CYCLES += 14;	break;	//sbc hl,hl
+	case 0x42:	SBC16(HL, BC);	CYCLES += 15;	break;	//sbc hl,bc
+	case 0x52:	SBC16(HL, DE);	CYCLES += 15;	break;	//sbc hl,de
+	case 0x62:	SBC16(HL, HL);	CYCLES += 15;	break;	//sbc hl,hl
+	case 0x72:	SBC16(HL, SP);	CYCLES += 15;	break;	//sbc hl,hl
+	case 0x7A:	ADC16(HL, SP);	CYCLES += 15;	break;	//sbc hl,hl
 	case 0x43:	//ld (nn),bc
 		write16(read16(PC), BC);
 		PC += 2;
@@ -1017,7 +1018,7 @@ __inline void step_ed()
 			F |= FLAG_N;
 		//todo: set h flag
 		break;
-	case 0x4A:	ADC16(HL, BC);	CYCLES += 14;	break;	//sbc hl,bc
+	case 0x4A:	ADC16(HL, BC);	CYCLES += 15;	break;	//sbc hl,bc
 	case 0x4B:	//ld bc,(nn)
 		BC = read16(read16(PC));
 		PC += 2;
@@ -1032,7 +1033,7 @@ __inline void step_ed()
 		z80->intmode = 1;
 		CYCLES += 8;
 		break;
-	case 0x5A:	ADC16(HL, DE);		CYCLES += 10;	break;
+	case 0x5A:	ADC16(HL, DE);		CYCLES += 15;	break;
 
 	case 0x5B:	//ld de,(nn)
 		DE = read16(read16(PC));
@@ -1073,7 +1074,7 @@ __inline void step_ed()
 	case 0x7B:	//ld SP,(nn)
 		SP = read16(read16(PC));
 		PC += 2;
-		CYCLES += 14;
+		CYCLES += 20;
 		break;
 
 	case 0x73:	//LD (nn),SP
@@ -1441,7 +1442,7 @@ __inline void step_fd()
 
 	switch (opcode) {
 	case 0x09:	ADD16(IY, BC);	CYCLES += 7;	break;
-	case 0x19:	ADD16(IY, DE);	CYCLES += 7;	break;
+	case 0x19:	ADD16(IY, DE);	CYCLES += 11;	break;
 	case 0x21:	//ld IY,nn
 		IY = read16(PC);
 		PC += 2;
@@ -1699,9 +1700,11 @@ __inline void step_fd()
 	case 0xCB:	return(step_fdcb());
 	case 0xE1:	//pop IY
 		POP16(IY);
+		CYCLES += 14;
 		break;
 	case 0xE5:	//push IY
 		PUSH16(IY);
+		CYCLES += 15;
 		break;
 
 	default:
@@ -1860,7 +1863,7 @@ void deadz80_step()
 	case 0x22:	//ld (u16),hl
 		write16(read16(PC), HL);
 		PC += 2;
-		CYCLES += 13;
+		CYCLES += 16;
 		break;
 
 	case 0x23:	INC16(HL);				CYCLES += 6;	break;
@@ -1882,7 +1885,7 @@ void deadz80_step()
 			CYCLES += 8;
 		break;
 
-	case 0x29:	ADD16(HL, HL);		CYCLES += 6;	break;
+	case 0x29:	ADD16(HL, HL);		CYCLES += 4;	break;
 
 	case 0x2A:	//ld hl,(imm16)
 		HL = read16(read16(PC));
@@ -1922,22 +1925,13 @@ void deadz80_step()
 		CYCLES += 13;
 		break;
 
-	case 0x33:	INC16(SP);		CYCLES += 7;		break;
+	case 0x33:	INC16(SP);		CYCLES += 14;		break;
 
 	case 0x34:	//inc (hl)
 		tmp = read8(HL);
 		INC(tmp);
 		write8(HL, tmp);
-		/*
-		stmp = tmp + 1;
-		write8(HL, (u8)stmp);
-		F &= ~(FLAG_S | FLAG_Z | FLAG_V | FLAG_N | FLAG_H | 0x28);
-		F |= stmp & 0x28;
-		checkSZ(stmp & 0xFF);
-		checkV(tmp, 1, stmp);
-		if ((tmp & 8) && (1 & 8))
-			F |= FLAG_H;*/
-		CYCLES += 4;
+		CYCLES += 11;
 		break;
 
 	case 0x35:	//dec (hl)
@@ -2125,7 +2119,7 @@ void deadz80_step()
 	case 0xC6:	tmp = read8(PC++); ADD(tmp);	CYCLES += 4;	break;
 	case 0xC7:	RST(0x00);												break;
 	case 0xC8:	RET((F & FLAG_Z) != 0);								break;
-	case 0xC9:	RET(1);													break;
+	case 0xC9:	RET(1);	CYCLES -= 1;								break;
 	case 0xCA:	JR((F & FLAG_Z) != 0);								break;
 	case 0xCB:	step_cb();												break;
 	case 0xCC:	CALL((F & FLAG_Z) != 0);							break;
@@ -2232,40 +2226,76 @@ static char *op_xx_cb[256] =
 	"?", "?", "?", "?", "?", "?", "set 7,Y", "?"
 };
 
+static char *op_dd[256] =
+{
+	"?", "?", "?", "?", "?", "?", "?", "?",
+	"?", "?", "?", "?", "?", "?", "?", "?",
+	"?", "?", "?", "?", "?", "?", "?", "?",
+	"?", "?", "?", "?", "?", "?", "?", "?",
+	"?", "?", "?", "?", "?", "?", "?", "?",
+	"?", "?", "?", "?", "?", "?", "?", "?",
+	"?", "?", "?", "?", "?", "?", "?", "?",
+	"?", "?", "?", "?", "?", "?", "?", "?",
+	"?", "?", "?", "?", "?", "?", "?", "?",
+	"?", "?", "?", "?", "?", "?", "?", "?",
+	"?", "?", "?", "?", "?", "?", "?", "?",
+	"?", "?", "?", "?", "?", "?", "?", "?",
+	"?", "?", "?", "?", "?", "?", "?", "?",
+	"?", "?", "?", "?", "?", "?", "?", "?",
+	"?", "?", "?", "?", "?", "?", "?", "?",
+	"?", "?", "?", "?", "?", "?", "?", "?",
+	"?", "?", "?", "?", "?", "?", "?", "?",
+	"?", "?", "?", "?", "?", "?", "?", "?",
+	"?", "?", "?", "?", "?", "?", "?", "?",
+	"?", "?", "?", "?", "?", "?", "?", "?",
+	"?", "?", "?", "?", "?", "?", "?", "?",
+	"?", "?", "?", "?", "?", "?", "?", "?",
+	"?", "?", "?", "?", "?", "?", "?", "?",
+	"?", "?", "?", "?", "?", "?", "?", "?",
+	"?", "?", "?", "?", "?", "?", "?", "?",
+	"?", "?", "?", "?", "?", "?", "?", "?",
+	"?", "?", "?", "?", "?", "?", "?", "?",
+	"?", "?", "?", "?", "?", "?", "?", "?",
+	"?", "pop ix", "?", "?", "?", "?", "push ix", "?",
+	"?", "?", "?", "?", "?", "?", "?", "?",
+	"?", "?", "?", "?", "?", "?", "?", "?",
+	"?", "?", "?", "?", "?", "?", "?", "?",
+};
+
 static char *op_fd[256] =
 {
-	"?", "?", "?", "?", "?", "?", "rlc Y", "?",
-	"?", "?", "?", "?", "?", "?", "rrc Y", "?",
-	"?", "?", "?", "?", "?", "?", "rl Y", "?",
-	"?", "?", "?", "?", "?", "?", "rr Y", "?",
-	"?", "?", "?", "?", "?", "?", "sla Y", "?",
-	"?", "?", "?", "?", "?", "?", "sra Y", "?",
-	"?", "?", "?", "?", "?", "?", "sll Y", "?",
-	"?", "?", "?", "?", "?", "?", "srl Y", "?",
-	"?", "?", "?", "?", "?", "?", "bit 0,Y", "?",
-	"?", "?", "?", "?", "?", "?", "bit 1,Y", "?",
-	"?", "?", "?", "?", "?", "?", "bit 2,Y", "?",
-	"?", "?", "?", "?", "?", "?", "bit 3,Y", "?",
-	"?", "?", "?", "?", "?", "?", "bit 4,Y", "?",
-	"?", "?", "?", "?", "?", "?", "bit 5,Y", "?",
-	"?", "?", "?", "?", "?", "?", "bit 6,Y", "?",
-	"?", "?", "?", "?", "?", "?", "bit 7,Y", "?",
-	"?", "?", "?", "?", "?", "?", "res 0,Y", "?",
-	"?", "?", "?", "?", "?", "?", "res 1,Y", "?",
-	"?", "?", "?", "?", "?", "?", "res 2,Y", "?",
-	"?", "?", "?", "?", "?", "?", "res 3,Y", "?",
-	"?", "?", "?", "?", "?", "?", "res 4,Y", "?",
-	"?", "?", "?", "?", "?", "?", "res 5,Y", "?",
-	"?", "?", "?", "?", "?", "?", "res 6,Y", "?",
-	"?", "?", "?", "?", "?", "?", "res 7,Y", "?",
-	"?", "?", "?", "?", "?", "?", "set 0,Y", "?",
-	"?", "?", "?", "?", "?", "?", "set 1,Y", "?",
-	"?", "?", "?", "?", "?", "?", "set 2,Y", "?",
-	"?", "?", "?", "?", "?", "?", "set 3,Y", "?",
-	"?", "?", "?", "?", "?", "?", "set 4,Y", "?",
-	"?", "?", "?", "?", "?", "?", "set 5,Y", "?",
-	"?", "?", "?", "?", "?", "?", "set 6,Y", "?",
-	"?", "?", "?", "?", "?", "?", "set 7,Y", "?"
+	"?", "?", "?", "?", "?", "?", "?", "?",
+	"?", "?", "?", "?", "?", "?", "?", "?",
+	"?", "?", "?", "?", "?", "?", "?", "?",
+	"?", "?", "?", "?", "?", "?", "?", "?",
+	"?", "?", "?", "?", "?", "?", "?", "?",
+	"?", "?", "?", "?", "?", "?", "?", "?",
+	"?", "?", "?", "?", "?", "?", "?", "?",
+	"?", "?", "?", "?", "?", "?", "?", "?",
+	"?", "?", "?", "?", "?", "?", "?", "?",
+	"?", "?", "?", "?", "?", "?", "?", "?",
+	"?", "?", "?", "?", "?", "?", "?", "?",
+	"?", "?", "?", "?", "?", "?", "?", "?",
+	"?", "?", "?", "?", "?", "?", "?", "?",
+	"?", "?", "?", "?", "?", "?", "?", "?",
+	"?", "?", "?", "?", "?", "?", "?", "?",
+	"?", "?", "?", "?", "?", "?", "?", "?",
+	"?", "?", "?", "?", "?", "?", "?", "?",
+	"?", "?", "?", "?", "?", "?", "?", "?",
+	"?", "?", "?", "?", "?", "?", "?", "?",
+	"?", "?", "?", "?", "?", "?", "?", "?",
+	"?", "?", "?", "?", "?", "?", "?", "?",
+	"?", "?", "?", "?", "?", "?", "?", "?",
+	"?", "?", "?", "?", "?", "?", "?", "?",
+	"?", "?", "?", "?", "?", "?", "?", "?",
+	"?", "?", "?", "?", "?", "?", "?", "?",
+	"?", "?", "?", "?", "?", "?", "?", "?",
+	"?", "?", "?", "?", "?", "?", "?", "?",
+	"?", "?", "?", "?", "?", "?", "?", "?",
+	"?", "pop iy", "?", "?", "?", "push iy", "?", "?",
+	"?", "?", "?", "?", "?", "?", "?", "?",
+	"?", "?", "?", "?", "?", "?", "?", "?",
+	"?", "?", "?", "?", "?", "?", "?", "?",
 };
 
 static char *op_cb[256] =
@@ -2433,6 +2463,11 @@ u32 deadz80_disassemble(char *dest, u32 p)
 		ptr = op_cb[opcode2];
 		sprintf(dest, "$%04X: %02X %02X", oldpc, opcode, opcode2);
 		break;
+	case 0xDD:
+		opcode2 = deadz80_memread(p++);
+		ptr = op_dd[opcode2];
+		sprintf(dest, "$%04X: %02X %02X", oldpc, opcode, opcode2);
+		break;
 	case 0xED:
 		opcode2 = deadz80_memread(p++);
 		ptr = op_ed[opcode2];
@@ -2491,9 +2526,9 @@ u32 deadz80_disassemble(char *dest, u32 p)
 	dest[strlen(dest)] = ' ';
 	sprintf(dest + 40, "AF=$%04X BC=$%04X DE=$%04X HL=$%04X SP=$%04X PC=$%04X", z80->regs->af.w, z80->regs->bc.w, z80->regs->de.w, z80->regs->hl.w, z80->sp, z80->pc);
 	{
-		FILE *fp = fopen("cpu.log", "at");
-		fprintf(fp,"%s\n",dest);
-		fclose(fp);
+	//	FILE *fp = fopen("cpu.log", "at");
+	//	fprintf(fp,"%s\n",dest);
+	//	fclose(fp);
 	}
 	return(p);
 }

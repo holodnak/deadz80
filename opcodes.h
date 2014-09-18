@@ -188,10 +188,10 @@ checkP(tmp);
 	if(c) {				\
 		PC = read8(SP+0) | (read8(SP+1) << 8);	\
 		SP += 2;		\
-		CYCLES += 10;	\
+		CYCLES += 11;	\
 		}					\
 		else				\
-		CYCLES += 7;
+		CYCLES += 5;
 
 #define RST(v)		\
 	write8(--SP,(PC >> 8) & 0xFF);	\
@@ -223,7 +223,7 @@ checkP(tmp);
 		}		\
 		else {	\
 		PC += 2;		\
-		CYCLES += 12;	\
+		CYCLES += 10;	\
 		}
 
 #define DEC16(r)	\
