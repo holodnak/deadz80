@@ -743,7 +743,7 @@ emulate_next_instruction:
 
                                 r -= 2;
                                 elapsed_cycles -= 8;
-                                for ( ; ; ) {
+                                /*for ( ; ; )*/ {
 
                                         r += 2;
 
@@ -751,18 +751,19 @@ emulate_next_instruction:
                                         z = a - n;
 
                                         hl += d;
-                                        if (--bc && z) 
 
-                                                elapsed_cycles += 21;
+													 if (--bc && z) {
+														 elapsed_cycles += 21;
+														 pc -= 2;
+//														 break;
+													 }
 
                                         else {
-
-                                                elapsed_cycles += 16;
-                                                break;
-
+														 elapsed_cycles += 16;
+//														 break;
                                         } 
 
-                                        if (elapsed_cycles < number_cycles) 
+/*                                        if (elapsed_cycles < number_cycles) 
 
                                                 continue;
 
@@ -771,11 +772,13 @@ emulate_next_instruction:
                                                 pc -= 2;
                                                 break;
 
-                                        }
+                                        }*/
 
                                 } 
 
-                                HL = hl;
+//										  printf("z80emu:  pc = $%04X, z = $%02X, n = $%02X, A = $%02X\n", pc, z, n, a);
+
+										  HL = hl;
                                 BC = bc;
 
                                 f = (a ^ n ^ z) & Z80_H_FLAG;
@@ -789,9 +792,11 @@ emulate_next_instruction:
 
 #endif
 
-                                f |= SZYX_FLAGS_TABLE[z & 0xff] & SZ_FLAGS;
-                                f |= bc ? Z80_P_FLAG : 0;
+										  f |= SZYX_FLAGS_TABLE[z & 0xff] & SZ_FLAGS;
+//										  printf("z80emu:  SZYX_FLAGS_TABLE[z & 0xff] = $%02X\n", SZYX_FLAGS_TABLE[z & 0xff]);
+										  f |= bc ? Z80_P_FLAG : 0;
                                 F = f | Z80_N_FLAG | (F & Z80_C_FLAG);
+
 
                                 break;
 

@@ -5,6 +5,10 @@ VisualStudioVersion = 12.0.30723.0
 MinimumVisualStudioVersion = 10.0.40219.1
 Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "deadz80-test", "deadz80-test.vcxproj", "{B874B4CB-AAE6-498F-A451-6795620E8E88}"
 EndProject
+Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "1942emu", "..\..\1942emu\1942emu.vcxproj", "{C136EE9D-1C81-445E-8773-659FCBF5ABE0}"
+EndProject
+Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "deadlib", "..\..\deadlib\deadlib\deadlib.vcxproj", "{526941DD-7E02-44A7-B7A9-E601A8B38CB0}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Win32 = Debug|Win32
@@ -13,8 +17,16 @@ Global
 	GlobalSection(ProjectConfigurationPlatforms) = postSolution
 		{B874B4CB-AAE6-498F-A451-6795620E8E88}.Debug|Win32.ActiveCfg = Debug|Win32
 		{B874B4CB-AAE6-498F-A451-6795620E8E88}.Debug|Win32.Build.0 = Debug|Win32
-		{B874B4CB-AAE6-498F-A451-6795620E8E88}.Release|Win32.ActiveCfg = Debug|Win32
-		{B874B4CB-AAE6-498F-A451-6795620E8E88}.Release|Win32.Build.0 = Debug|Win32
+		{B874B4CB-AAE6-498F-A451-6795620E8E88}.Release|Win32.ActiveCfg = Release|Win32
+		{B874B4CB-AAE6-498F-A451-6795620E8E88}.Release|Win32.Build.0 = Release|Win32
+		{C136EE9D-1C81-445E-8773-659FCBF5ABE0}.Debug|Win32.ActiveCfg = Debug|Win32
+		{C136EE9D-1C81-445E-8773-659FCBF5ABE0}.Debug|Win32.Build.0 = Debug|Win32
+		{C136EE9D-1C81-445E-8773-659FCBF5ABE0}.Release|Win32.ActiveCfg = Release|Win32
+		{C136EE9D-1C81-445E-8773-659FCBF5ABE0}.Release|Win32.Build.0 = Release|Win32
+		{526941DD-7E02-44A7-B7A9-E601A8B38CB0}.Debug|Win32.ActiveCfg = Debug|Win32
+		{526941DD-7E02-44A7-B7A9-E601A8B38CB0}.Debug|Win32.Build.0 = Debug|Win32
+		{526941DD-7E02-44A7-B7A9-E601A8B38CB0}.Release|Win32.ActiveCfg = Release|Win32
+		{526941DD-7E02-44A7-B7A9-E601A8B38CB0}.Release|Win32.Build.0 = Release|Win32
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE

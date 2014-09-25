@@ -48,6 +48,66 @@ extern unsigned char memory[];
 
 int test2(void);
 
+int state_save(char *filename)
+{
+	FILE *fp;
+
+	if ((fp = fopen(filename, "wb")) == 0) {
+		printf("error opening\n");
+		return(1);
+	}
+#define write_u8(v, f) fwrite(&v,1,1,f)
+#define write_u16(v, f) fwrite(&v,2,1,f)
+#define write_u32(v, f) fwrite(&v,4,1,f)
+#define read_u8(v, f) fread(&v,1,1,f)
+#define read_u16(v, f) fread(&v,2,1,f)
+#define read_u32(v, f) fread(&v,4,1,f)
+	write_u16(z80->main.af.w, fp);
+	write_u16(z80->main.bc.w, fp);
+	write_u16(z80->main.de.w, fp);
+	write_u16(z80->main.hl.w, fp);
+	write_u16(z80->alt.af.w, fp);
+	write_u16(z80->alt.bc.w, fp);
+	write_u16(z80->alt.de.w, fp);
+	write_u16(z80->alt.hl.w, fp);
+	write_u16(z80->pc, fp);
+	write_u16(z80->sp, fp);
+	write_u16(z80->ix.w, fp);
+	write_u16(z80->iy.w, fp);
+	write_u32(z80->cycles, fp);
+	fwrite(mem, 0x10000, 1, fp);
+	fclose(fp);
+	return(0);
+}
+
+int state_load(char *filename)
+{
+	FILE *fp;
+
+	if ((fp = fopen(filename, "rb")) == 0) {
+		printf("error opening\n");
+		return(1);
+	}
+
+	read_u16(z80->main.af.w, fp);
+	read_u16(z80->main.bc.w, fp);
+	read_u16(z80->main.de.w, fp);
+	read_u16(z80->main.hl.w, fp);
+	read_u16(z80->alt.af.w, fp);
+	read_u16(z80->alt.bc.w, fp);
+	read_u16(z80->alt.de.w, fp);
+	read_u16(z80->alt.hl.w, fp);
+	read_u16(z80->pc, fp);
+	read_u16(z80->sp, fp);
+	read_u16(z80->ix.w, fp);
+	read_u16(z80->iy.w, fp);
+	read_u32(z80->cycles, fp);
+	fread(mem, 0x10000, 1, fp);
+
+	fclose(fp);
+	return(0);
+}
+
 int main(int argc, char *argv[])
 {
 	char str[512];
@@ -57,6 +117,7 @@ int main(int argc, char *argv[])
 	int i;
 	Z80_STATE       state;
 	long total = 0;
+	int c,statecycles = 0;
 
 //	test2();
 
@@ -110,13 +171,27 @@ int main(int argc, char *argv[])
 	Z80Reset(&state);
 	state.pc = 0x100;
 
+	state.registers.word[4] = z80->ix.w;
+	state.registers.word[5] = z80->iy.w;
+
+/*	state_load("state.bin");
+	printf("loaded state\n");
+	state.registers.word[3] = z80->main.af.w;
+	state.registers.word[0] = z80->main.bc.w;
+	state.registers.word[1] = z80->main.de.w;
+	state.registers.word[2] = z80->main.hl.w;
+	state.registers.word[4] = z80->ix.w;
+	state.registers.word[5] = z80->iy.w;
+	state.registers.word[6] = z80->sp;
+	state.pc = z80->pc;
+	memcpy(memory, mem, 0x10000);*/
 
 	for (;;) {
 		int error = 0;
 		u16 prevpc = z80->pc;
 
-		deadz80_disassemble(str, z80->pc);
-		printf("%s\n", str);
+//		deadz80_disassemble(str, z80->pc);
+//		printf("%s\n", str);
 		deadz80_step();
 		if (z80->halt) {
 			printf("halt\n");
@@ -125,7 +200,9 @@ int main(int argc, char *argv[])
 		
 //		deadz80_disassemble(str, state.pc);
 //		printf("$%04X :: %s\n", state.pc, str);
-		total += Z80Emulate(&state, 1);
+		c = Z80Emulate(&state, 1);
+		total += c;
+		statecycles += c;
 		if (state.status & FLAG_STOP_EMULATION)
 			break;
 
@@ -136,10 +213,19 @@ int main(int argc, char *argv[])
 		if (state.registers.word[0] != z80->regs->bc.w)	{ printf("bc doesnt match $%04X should be $%04X\n", z80->regs->bc.w, state.registers.word[0]); error = 1; };
 		if (state.registers.word[1] != z80->regs->de.w)	{ printf("de doesnt match $%04X should be $%04X\n", z80->regs->de.w, state.registers.word[1]); error = 1; };
 		if (state.registers.word[2] != z80->regs->hl.w)	{ printf("hl doesnt match $%04X should be $%04X\n", z80->regs->hl.w, state.registers.word[2]); error = 1; };
-/*		if (memcmp(mem, memory, 0x10000) != 0) {
-			printf("memory different!");
+		if (state.registers.word[4] != z80->ix.w)	{ printf("ix doesnt match $%04X should be $%04X\n", z80->ix.w, state.registers.word[4]); error = 1; };
+		if (state.registers.word[5] != z80->iy.w)	{ printf("iy doesnt match $%04X should be $%04X\n", z80->iy.w, state.registers.word[5]); error = 1; };
+		if (error && memcmp(mem, memory, 0x10000) != 0) {
+			int n;
+
+			printf("memory different!\n");
+			for (n = 0; n < 0x10000; n++) {
+				if (mem[n] != memory[n]) {
+					printf("address $%04X:  $%02X != $%02X\n", n, mem[n], memory[n]);
+				}
+			}
 			error = 1;
-		}*/
+		}
 		if (error) {
 			deadz80_disassemble(str, prevpc);
 			printf("%s\n", str);
@@ -147,6 +233,12 @@ int main(int argc, char *argv[])
 		}
 		total = 0;
 		z80->cycles = 0;
+
+/*		if (statecycles >= 0x00100000) {
+			statecycles = 0;
+			state_save("state.bin");
+			printf("state saved\n");
+		}*/
 	}
 
 	system("pause");

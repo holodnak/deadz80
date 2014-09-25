@@ -32,6 +32,9 @@ static deadz80_t *z80;							//pointer to active z80 context
 #define HALT		z80->halt
 #define OPCODE		z80->opcode
 #define CYCLES		z80->cycles
+#define INTMODE	z80->intmode
+#define INSIDEIRQ	z80->insideirq
+
 #define NMISTATE	z80->nmistate
 #define IRQSTATE	z80->irqstate
 
@@ -44,6 +47,10 @@ static deadz80_t *z80;							//pointer to active z80 context
 #define FLAG_Y	0x20
 #define FLAG_Z	0x40
 #define FLAG_S	0x80
+
+//reading/writing helper functions
+#define read8 deadz80_memread
+#define write8 deadz80_memwrite
 
 //table for parity flag calculation
 unsigned char parity[256] = {
@@ -65,41 +72,8 @@ unsigned char parity[256] = {
 	4, 0, 0, 4, 0, 4, 4, 0, 0, 4, 4, 0, 4, 0, 0, 4,
 };
 
-static u8 SZ[256];       /* zero and sign flags */
-static u8 SZ_BIT[256];   /* zero, sign and parity/overflow (=zero) flags for BIT opcode */
-static u8 SZP[256];      /* zero, sign and parity flags */
-static u8 SZHV_inc[256]; /* zero, sign, half carry and overflow flags INC r8 */
-static u8 SZHV_dec[256]; /* zero, sign, half carry and overflow flags DEC r8 */
-static u8 *SZHVC_add = 0;
-static u8 *SZHVC_sub = 0;
-
 void deadz80_init()
 {
-	int i, p;
-
-	for (i = 0; i < 256; i++) {
-		p = 0;
-		if (i & 0x01) ++p;
-		if (i & 0x02) ++p;
-		if (i & 0x04) ++p;
-		if (i & 0x08) ++p;
-		if (i & 0x10) ++p;
-		if (i & 0x20) ++p;
-		if (i & 0x40) ++p;
-		if (i & 0x80) ++p;
-		SZ[i] = i ? i & FLAG_S : FLAG_Z;
-		SZ[i] |= (i & 0X28);       /* undocumented flag bits 5+3 */
-		SZ_BIT[i] = i ? i & FLAG_S : FLAG_Z | FLAG_P;
-		SZ_BIT[i] |= (i & 0x28);   /* undocumented flag bits 5+3 */
-		SZP[i] = SZ[i] | ((p & 1) ? 0 : FLAG_P);
-		SZHV_inc[i] = SZ[i];
-		if (i == 0x80) SZHV_inc[i] |= FLAG_V;
-		if ((i & 0x0f) == 0x00) SZHV_inc[i] |= FLAG_H;
-		SZHV_dec[i] = SZ[i] | FLAG_N;
-		if (i == 0x7f) SZHV_dec[i] |= FLAG_V;
-		if ((i & 0x0f) == 0x0f) SZHV_dec[i] |= FLAG_H;
-	}
-
 	z80 = &internalz80;		//setup cpu context
 	z80->regs = &z80->main;
 	memset(z80,0,sizeof(deadz80_t));
@@ -200,9 +174,45 @@ void deadz80_reset()
 	PC = 0;				//reset pc
 }
 
-//reading/writing helper functions
-#define read8 deadz80_memread
-#define write8 deadz80_memwrite
+void deadz80_nmi()
+{
+	IFF2 = IFF1;
+	IFF1 = 0;
+	write8(--SP, (PC >> 8) & 0xFF);
+	write8(--SP, (PC >> 0) & 0xFF);
+	PC = 0x66;
+	CYCLES += 11;
+}
+
+void deadz80_irq()
+{
+	if (IFF1 == 0)
+		return;
+
+	if (HALT) {
+		HALT = 0;
+		PC++;
+	}
+
+	switch (INTMODE) {
+	case 0:
+		INSIDEIRQ = 1;
+		deadz80_step();
+		break;
+	case 1:
+		write8(--SP, (PC >> 8) & 0xFF);
+		write8(--SP, (PC >> 0) & 0xFF);
+		PC = 0x0038;
+		CYCLES += 13;
+		break;
+	case 2:
+		printf("im 2 not done\n");
+		break;
+	default:
+		printf("bad im\n");
+		break;
+	}
+}
 
 //include all opcode macros and opcode execution functions
 #include "opcodes.h"
@@ -222,7 +232,7 @@ __inline void write16(u32 addr,u16 data)
 __inline void step_cb()
 {
 	unsigned char opcode = read8(PC++);
-	unsigned char tmp;
+	unsigned char tmp, tmp2;
 
 	switch (opcode) {
 	case 0x00:	RLC(B);		CYCLES += 8;	break;
@@ -231,7 +241,7 @@ __inline void step_cb()
 	case 0x03:	RLC(E);		CYCLES += 8;	break;
 	case 0x04:	RLC(H);		CYCLES += 8;	break;
 	case 0x05:	RLC(L);		CYCLES += 8;	break;
-	case 0x06:	tmp = read8(HL);	RLC(tmp);	write8(HL, tmp);	CYCLES += 14;	break;
+	case 0x06:	tmp2 = read8(HL);	RLC(tmp2);	write8(HL, tmp2);	CYCLES += 14;	break;
 	case 0x07:	RLC(A);		CYCLES += 8;	break;
 	case 0x08:	RRC(B);		CYCLES += 8;	break;
 	case 0x09:	RRC(C);		CYCLES += 8;	break;
@@ -239,7 +249,7 @@ __inline void step_cb()
 	case 0x0B:	RRC(E);		CYCLES += 8;	break;
 	case 0x0C:	RRC(H);		CYCLES += 8;	break;
 	case 0x0D:	RRC(L);		CYCLES += 8;	break;
-	case 0x0E:	tmp = read8(HL);	RRC(tmp);	write8(HL, tmp);	CYCLES += 14;	break;
+	case 0x0E:	tmp2 = read8(HL);	RRC(tmp2);	write8(HL, tmp2);	CYCLES += 14;	break;
 	case 0x0F:	RRC(A);		CYCLES += 8;	break;
 	case 0x10:	RL(B);		CYCLES += 8;	break;
 	case 0x11:	RL(C);		CYCLES += 8;	break;
@@ -247,7 +257,7 @@ __inline void step_cb()
 	case 0x13:	RL(E);		CYCLES += 8;	break;
 	case 0x14:	RL(H);		CYCLES += 8;	break;
 	case 0x15:	RL(L);		CYCLES += 8;	break;
-	case 0x16:	tmp = read8(HL);	RL(tmp);	write8(HL, tmp);	CYCLES += 14;	break;
+	case 0x16:	tmp2 = read8(HL);	RL(tmp2);	write8(HL, tmp2);	CYCLES += 14;	break;
 	case 0x17:	RL(A);		CYCLES += 8;	break;
 	case 0x18:	RR(B);		CYCLES += 8;	break;
 	case 0x19:	RR(C);		CYCLES += 8;	break;
@@ -255,7 +265,7 @@ __inline void step_cb()
 	case 0x1B:	RR(E);		CYCLES += 8;	break;
 	case 0x1C:	RR(H);		CYCLES += 8;	break;
 	case 0x1D:	RR(L);		CYCLES += 8;	break;
-	case 0x1E:	tmp = read8(HL);	RR(tmp);	write8(HL, tmp);	CYCLES += 14;	break;
+	case 0x1E:	tmp2 = read8(HL);	RR(tmp2);	write8(HL, tmp2);	CYCLES += 14;	break;
 	case 0x1F:	RR(A);		CYCLES += 8;	break;
 	case 0x20:	SLA(B);		CYCLES += 8;	break;
 	case 0x21:	SLA(C);		CYCLES += 8;	break;
@@ -295,7 +305,7 @@ __inline void step_cb()
 	case 0x43:	BIT(0, E);	CYCLES += 4;	break;
 	case 0x44:	BIT(0, H);	CYCLES += 4;	break;
 	case 0x45:	BIT(0, L);	CYCLES += 4;	break;
-	case 0x46:	tmp = read8(HL);	BIT(0, tmp);	CYCLES += 4;	break;
+	case 0x46:	tmp = read8(HL);	BIT_HL(0, tmp);	CYCLES += 4;	break;
 	case 0x47:	BIT(0, A);	CYCLES += 4;	break;
 	case 0x48:	BIT(1, B);	CYCLES += 4;	break;
 	case 0x49:	BIT(1, C);	CYCLES += 4;	break;
@@ -303,7 +313,7 @@ __inline void step_cb()
 	case 0x4B:	BIT(1, E);	CYCLES += 4;	break;
 	case 0x4C:	BIT(1, H);	CYCLES += 4;	break;
 	case 0x4D:	BIT(1, L);	CYCLES += 4;	break;
-	case 0x4E:	tmp = read8(HL);	BIT(1, tmp);	CYCLES += 4;	break;
+	case 0x4E:	tmp = read8(HL);	BIT_HL(1, tmp);	CYCLES += 4;	break;
 	case 0x4F:	BIT(1, A);	CYCLES += 4;	break;
 	case 0x50:	BIT(2, B);	CYCLES += 4;	break;
 	case 0x51:	BIT(2, C);	CYCLES += 4;	break;
@@ -311,7 +321,7 @@ __inline void step_cb()
 	case 0x53:	BIT(2, E);	CYCLES += 4;	break;
 	case 0x54:	BIT(2, H);	CYCLES += 4;	break;
 	case 0x55:	BIT(2, L);	CYCLES += 4;	break;
-	case 0x56:	tmp = read8(HL);	BIT(2, tmp);	CYCLES += 4;	break;
+	case 0x56:	tmp = read8(HL);	BIT_HL(2, tmp);	CYCLES += 4;	break;
 	case 0x57:	BIT(2, A);	CYCLES += 4;	break;
 	case 0x58:	BIT(3, B);	CYCLES += 4;	break;
 	case 0x59:	BIT(3, C);	CYCLES += 4;	break;
@@ -319,7 +329,7 @@ __inline void step_cb()
 	case 0x5B:	BIT(3, E);	CYCLES += 4;	break;
 	case 0x5C:	BIT(3, H);	CYCLES += 4;	break;
 	case 0x5D:	BIT(3, L);	CYCLES += 4;	break;
-	case 0x5E:	tmp = read8(HL);	BIT(3, tmp);	CYCLES += 4;	break;
+	case 0x5E:	tmp = read8(HL);	BIT_HL(3, tmp);	CYCLES += 4;	break;
 	case 0x5F:	BIT(3, A);	CYCLES += 4;	break;
 	case 0x60:	BIT(4, B);	CYCLES += 4;	break;
 	case 0x61:	BIT(4, C);	CYCLES += 4;	break;
@@ -327,7 +337,7 @@ __inline void step_cb()
 	case 0x63:	BIT(4, E);	CYCLES += 4;	break;
 	case 0x64:	BIT(4, H);	CYCLES += 4;	break;
 	case 0x65:	BIT(4, L);	CYCLES += 4;	break;
-	case 0x66:	tmp = read8(HL);	BIT(4, tmp);	CYCLES += 4;	break;
+	case 0x66:	tmp = read8(HL);	BIT_HL(4, tmp);	CYCLES += 4;	break;
 	case 0x67:	BIT(4, A);	CYCLES += 4;	break;
 	case 0x68:	BIT(5, B);	CYCLES += 4;	break;
 	case 0x69:	BIT(5, C);	CYCLES += 4;	break;
@@ -335,7 +345,7 @@ __inline void step_cb()
 	case 0x6B:	BIT(5, E);	CYCLES += 4;	break;
 	case 0x6C:	BIT(5, H);	CYCLES += 4;	break;
 	case 0x6D:	BIT(5, L);	CYCLES += 4;	break;
-	case 0x6E:	tmp = read8(HL);	BIT(5, tmp);	CYCLES += 4;	break;
+	case 0x6E:	tmp = read8(HL);	BIT_HL(5, tmp);	CYCLES += 4;	break;
 	case 0x6F:	BIT(5, A);	CYCLES += 4;	break;
 	case 0x70:	BIT(6, B);	CYCLES += 4;	break;
 	case 0x71:	BIT(6, C);	CYCLES += 4;	break;
@@ -343,7 +353,7 @@ __inline void step_cb()
 	case 0x73:	BIT(6, E);	CYCLES += 4;	break;
 	case 0x74:	BIT(6, H);	CYCLES += 4;	break;
 	case 0x75:	BIT(6, L);	CYCLES += 4;	break;
-	case 0x76:	tmp = read8(HL);	BIT(6, tmp);	CYCLES += 4;	break;
+	case 0x76:	tmp = read8(HL);	BIT_HL(6, tmp);	CYCLES += 4;	break;
 	case 0x77:	BIT(6, A);	CYCLES += 4;	break;
 	case 0x78:	BIT(7, B);	CYCLES += 4;	break;
 	case 0x79:	BIT(7, C);	CYCLES += 4;	break;
@@ -351,7 +361,7 @@ __inline void step_cb()
 	case 0x7B:	BIT(7, E);	CYCLES += 4;	break;
 	case 0x7C:	BIT(7, H);	CYCLES += 4;	break;
 	case 0x7D:	BIT(7, L);	CYCLES += 4;	break;
-	case 0x7E:	tmp = read8(HL);	BIT(7, tmp);	CYCLES += 4;	break;
+	case 0x7E:	tmp = read8(HL);	BIT_HL(7, tmp);	CYCLES += 4;	break;
 	case 0x7F:	BIT(7, A);	CYCLES += 4;	break;
 	case 0x80:	RES(0, B);	CYCLES += 4;	break;
 	case 0x81:	RES(0, C);	CYCLES += 4;	break;
@@ -491,19 +501,25 @@ __inline void step_ddcb()
 {
 	unsigned char data = read8(PC++);
 	unsigned char opcode = read8(PC++);
-	unsigned char tmp;
+	unsigned char tmp, tmp2;
 	unsigned long ltmp;
 
-	ltmp = (unsigned int)(unsigned short)((signed short)IX + (signed char)data);	
+	ltmp = (unsigned long)(IX + (signed char)data);
 		switch (opcode) {
-		case 0x06: tmp = read8(ltmp); RLC(tmp); write8(ltmp, tmp); break; //rlc (ix+n)
-		case 0x0E: tmp = read8(ltmp); RRC(tmp); write8(ltmp, tmp); break; //rrc (ix+n)
-		case 0x16: tmp = read8(ltmp); RL(tmp); write8(ltmp, tmp); break; //rl (ix+n)
-		case 0x1E: tmp = read8(ltmp); RR(tmp); write8(ltmp, tmp); break; //rr (ix+n)
-		case 0x26: tmp = read8(ltmp); SLA(tmp); write8(ltmp, tmp); break; //sla (ix+n)
-		case 0x2E: tmp = read8(ltmp); SRA(tmp); write8(ltmp, tmp); break; //sra (ix+n)
-		case 0x36: tmp = read8(ltmp); SLL(tmp); write8(ltmp, tmp); break; //sla (ix+n)
-		case 0x3E: tmp = read8(ltmp); SRL(tmp); write8(ltmp, tmp); break; //sra (ix+n)
+		case 0x01:
+			tmp2 = read8(ltmp);
+			RLC(tmp2);
+			write8(ltmp, tmp2);
+			C = tmp2;
+			break; //rlc (ix+n),c
+		case 0x06: tmp2 = read8(ltmp); RLC(tmp2); write8(ltmp, tmp2); break; //rlc (ix+n)
+		case 0x0E: tmp2 = read8(ltmp); RRC(tmp2); write8(ltmp, tmp2); break; //rrc (ix+n)
+		case 0x16: tmp2 = read8(ltmp); RL(tmp2);  write8(ltmp, tmp2); break; //rl (ix+n)
+		case 0x1E: tmp2 = read8(ltmp); RR(tmp2);  write8(ltmp, tmp2); break; //rr (ix+n)
+		case 0x26: tmp2 = read8(ltmp); SLA(tmp2); write8(ltmp, tmp2); break; //sla (ix+n)
+		case 0x2E: tmp2 = read8(ltmp); SRA(tmp2); write8(ltmp, tmp2); break; //sra (ix+n)
+		case 0x36: tmp2 = read8(ltmp); SLL(tmp2); write8(ltmp, tmp2); break; //sla (ix+n)
+		case 0x3E: tmp2 = read8(ltmp); SRL(tmp2); write8(ltmp, tmp2); break; //sra (ix+n)
 		case 0x40:
 		case 0x41:
 		case 0x42:
@@ -708,7 +724,7 @@ __inline void step_dd()
 	unsigned char opcode = read8(PC++);
 	unsigned short stmp;
 	unsigned char tmp;
-	unsigned long ltmp;
+	unsigned long ltmp, otmp;
 
 	switch (opcode) {
 	case 0x09:	ADD16(IX, BC);				CYCLES += 7;	break;
@@ -729,11 +745,15 @@ __inline void step_dd()
 		CYCLES += 10;
 		break;
 	case 0x24:	//inc ixh
-		IX = ((IX + 0x100) & 0xFF00) | (IX & 0xFF);
+		tmp = (u8)(IXH);
+		INC(tmp);
+		IXH = tmp;
 		CYCLES += 10;
 		break;
 	case 0x25:	//dec ixh
-		IX = ((IX - 0x100) & 0xFF00) | (IX & 0xFF);
+		tmp = (u8)(IXH);
+		DEC(tmp);
+		IXH = tmp;
 		CYCLES += 10;
 		break;
 
@@ -754,12 +774,15 @@ __inline void step_dd()
 		CYCLES += 10;
 		break;
 	case 0x2C:	//inc ixl
-		IX = ((IX & 0xFF00) | ((IX + 1) & 0xFF));
-		IX += 0x100;
+		tmp = (u8)(IXL);
+		INC(tmp);
+		IXL = tmp;
 		CYCLES += 10;
 		break;
 	case 0x2D:	//dec ixl
-		IX = ((IX & 0xFF00) | ((IX - 1) & 0xFF));
+		tmp = (u8)(IXL);
+		DEC(tmp);
+		IXL = tmp;
 		CYCLES += 10;
 		break;
 	case 0x2E:	//ld ixl,n
@@ -837,30 +860,30 @@ __inline void step_dd()
 		CYCLES += 19;
 		break;
 	case 0x5F:	E = A;								CYCLES += 4;	break;
-	case 0x60:	H = B;								CYCLES += 4;	break;
-	case 0x61:	H = C;								CYCLES += 4;	break;
-	case 0x62:	H = D;								CYCLES += 4;	break;
-	case 0x63:	H = E;								CYCLES += 4;	break;
-	case 0x64:	H = IXH;							CYCLES += 4;	break;
-	case 0x65:	H = IXL;							CYCLES += 4;	break;
+	case 0x60:	IXH = B;								CYCLES += 4;	break;
+	case 0x61:	IXH = C;								CYCLES += 4;	break;
+	case 0x62:	IXH = D;								CYCLES += 4;	break;
+	case 0x63:	IXH = E;								CYCLES += 4;	break;
+	case 0x64:	IXH = IXH;							CYCLES += 4;	break;
+	case 0x65:	IXH = IXL;							CYCLES += 4;	break;
 	case 0x66:	//ld h,(IX+d)
 		ltmp = (unsigned long)(unsigned short)((signed short)IX + (signed char)read8(PC++));
 		H = read8(ltmp);
 		CYCLES += 19;
 		break;
-	case 0x67:	H = A;								CYCLES += 4;	break;
-	case 0x68:	L = B;								CYCLES += 4;	break;
-	case 0x69:	L = C;								CYCLES += 4;	break;
-	case 0x6A:	L = D;								CYCLES += 4;	break;
-	case 0x6B:	L = E;								CYCLES += 4;	break;
-	case 0x6C:	L = IXH;							CYCLES += 4;	break;
-	case 0x6D:	L = IXL;							CYCLES += 4;	break;
+	case 0x67:	IXH = A;								CYCLES += 4;	break;
+	case 0x68:	IXL = B;								CYCLES += 4;	break;
+	case 0x69:	IXL = C;								CYCLES += 4;	break;
+	case 0x6A:	IXL = D;								CYCLES += 4;	break;
+	case 0x6B:	IXL = E;								CYCLES += 4;	break;
+	case 0x6C:	IXL = IXH;							CYCLES += 4;	break;
+	case 0x6D:	IXL = IXL;							CYCLES += 4;	break;
 	case 0x6E:	//ld l,(IX+d)
 		ltmp = (unsigned long)(unsigned short)((signed short)IX + (signed char)read8(PC++));
 		L = read8(ltmp);
 		CYCLES += 19;
 		break;
-	case 0x6F:	L = A;								CYCLES += 4;	break;
+	case 0x6F:	IXL = A;								CYCLES += 4;	break;
 
 	case 0x70:	//ld (IX+d),b
 		ltmp = (unsigned long)(unsigned short)((signed short)IX + (signed char)read8(PC++));
@@ -991,6 +1014,7 @@ __inline void step_ed()
 	unsigned short stmp, tmp16;
 	unsigned char tmp;
 	unsigned long ltmp;
+	int itmp;
 
 	switch (opcode) {
 	case 0x42:	SBC16(HL, BC);	CYCLES += 15;	break;	//sbc hl,bc
@@ -1004,19 +1028,15 @@ __inline void step_ed()
 		CYCLES += 14;
 		break;
 	case 0x44:	//neg
-		tmp = A;
-		if (tmp != 0x80)
-			A = A - 0x80;
-		F = 0x28;
-		if (tmp == 0x80)
-			F |= FLAG_P;
-		if (tmp != 0x00)
-			F |= FLAG_C;
-		if (A == 0)
-			F |= FLAG_Z;
-		if (A & 0x80)
-			F |= FLAG_N;
-		//todo: set h flag
+		itmp = -A;
+		stmp = A ^ itmp;
+		F = FLAG_N | (stmp & FLAG_H);
+		F |= (stmp >= 0x100) ? FLAG_C : 0;
+		F |= (itmp == 0) ? FLAG_Z : 0;
+		F |= (itmp & 0x80) ? FLAG_S : 0;
+		F |= (A == 0x80) ? FLAG_V : 0;
+		F |= (itmp & 0x28);
+		A = itmp;
 		break;
 	case 0x4A:	ADC16(HL, BC);	CYCLES += 15;	break;	//sbc hl,bc
 	case 0x4B:	//ld bc,(nn)
@@ -1040,15 +1060,16 @@ __inline void step_ed()
 		PC += 2;
 		CYCLES += 14;
 		break;
-	case 0x67:
+	case 0x67: //rrd
 		tmp = read8(HL);
 		write8(HL, (tmp >> 4) | (A << 4));
 		A = (A & 0xF0) | (tmp & 0xF);
-		F = F & 1;
+		F &= FLAG_C;
+		F |= A & 0x28;
 		if (A == 0)
 			F |= FLAG_Z;
 		if (A & 0x80)
-			F |= FLAG_N;
+			F |= FLAG_S;
 		if (parity[A])
 			F |= FLAG_P;
 		break;
@@ -1063,11 +1084,12 @@ __inline void step_ed()
 		tmp = read8(HL);
 		write8(HL, (tmp << 4) | (A & 0xF));
 		A = (A & 0xF0) | (tmp >> 4);
-		F = F & 1;
+		F &= FLAG_C;
+		F |= A & 0x28;
 		if (A == 0)
 			F |= FLAG_Z;
 		if (A & 0x80)
-			F |= FLAG_N;
+			F |= FLAG_S;
 		if (parity[A])
 			F |= FLAG_P;
 		break;
@@ -1084,27 +1106,26 @@ __inline void step_ed()
 		break;
 
 	case 0xA0:	//ldi
-		write16(DE++, read16(HL++));
-		BC--;
-		F &= ~(FLAG_H | FLAG_N | FLAG_P);
-		if ((BC - 1) == 0)
-			F |= FLAG_P;
+		stmp = read8(HL++);
+		write8(DE++, stmp);
+		F &= (FLAG_S | FLAG_Z | FLAG_C);
+		F |= --BC ? FLAG_P : 0;
+		stmp += A;
+		F |= (stmp & 8) | ((stmp << 4) & 0x20);
 		break;
+
 	case 0xA1:	//cpi
 		tmp = read8(HL++);
-		stmp = A;
-		stmp -= tmp;
+		stmp = A - tmp;
 		BC--;
-		F &= ~(FLAG_S | FLAG_P | FLAG_Z | FLAG_H);
-		if (stmp & 0xFF00)
-			F |= FLAG_S;
-		if (stmp == 0)
-			F |= FLAG_Z;
-		if ((BC - 1) == 0)
-			F |= FLAG_P;
-		if ((A & 0xF) + (tmp & 0xF) >= 0x10)
-			F |= FLAG_H;
-		F |= FLAG_N;
+		F = (F & FLAG_C) | FLAG_N;
+		F |= (A ^ tmp ^ stmp) & FLAG_H;
+		F |= (BC ? FLAG_P : 0);
+		F |= stmp & FLAG_S;
+		F |= (stmp == 0) ? FLAG_Z : 0;
+		stmp -= (F >> 4) & 1;
+		F |= (stmp << 4) & 0x20;
+		F |= stmp & 0x08;
 		CYCLES += 16;
 		break;
 	case 0xA3:	//outi
@@ -1112,27 +1133,26 @@ __inline void step_ed()
 		z80->iowritefunc(BC, read8(HL++));
 		break;
 	case 0xA8:	//ldd
-		write16(DE--, read16(HL--));
-		BC--;
-		F &= ~(FLAG_H | FLAG_N | FLAG_P);
-		if ((BC - 1) == 0)
-			F |= FLAG_P;
+		stmp = read8(HL--);
+		write8(DE--, stmp);
+		F &= (FLAG_S | FLAG_Z | FLAG_C);
+		F |= --BC ? FLAG_P : 0;
+		stmp += A;
+		F |= (stmp & 8) | ((stmp << 4) & 0x20);
 		break;
+
 	case 0xA9:	//cpd
 		tmp = read8(HL--);
-		stmp = A;
-		stmp -= tmp;
+		stmp = A - tmp;
 		BC--;
-		F &= ~(FLAG_S | FLAG_P | FLAG_Z | FLAG_H);
-		if (stmp & 0xFF00)
-			F |= FLAG_S;
-		if (stmp == 0)
-			F |= FLAG_Z;
-		if ((BC - 1) == 0)
-			F |= FLAG_P;
-		if ((A & 0xF) + (tmp & 0xF) >= 0x10)
-			F |= FLAG_H;
-		F |= FLAG_N;
+		F = (F & FLAG_C) | FLAG_N;
+		F |= (A ^ tmp ^ stmp) & FLAG_H;
+		F |= (BC ? FLAG_P : 0);
+		F |= stmp & FLAG_S;
+		F |= (stmp == 0) ? FLAG_Z : 0;
+		stmp -= (F >> 4) & 1;
+		F |= (stmp << 4) & 0x20;
+		F |= stmp & 0x08;
 		CYCLES += 16;
 		break;
 
@@ -1159,23 +1179,24 @@ __inline void step_ed()
 		break;
 	case 0xB1:	//cpir
 		tmp = read8(HL++);
-		stmp = A;
-		stmp -= tmp;
-		BC--;
-		F &= ~(FLAG_S | FLAG_P | FLAG_Z | FLAG_H);
-		if (stmp & 0xFF00)
-			F |= FLAG_S;
-		if (stmp == 0)
-			F |= FLAG_Z;
-		if ((BC - 1) == 0)
-			F |= FLAG_P;
-		if ((A & 0xF) + (tmp & 0xF) >= 0x10)
-			F |= FLAG_H;
-		F |= FLAG_N;
-		if (BC > 0)
+		stmp = A - tmp;
+		if (--BC && stmp) {
 			PC -= 2;
+		}
+
+		F = (F & FLAG_C) | FLAG_N;
+		F |= (A ^ tmp ^ stmp) & FLAG_H;
+		F |= (BC ? FLAG_P : 0);
+		F |= stmp & FLAG_S;
+		F |= (stmp == 0) ? FLAG_Z : 0;
+
+		//calculate the x and y flags
+		stmp -= (F >> 4) & 1;
+		F |= (stmp << 4) & 0x20;
+		F |= stmp & 0x08;
 		CYCLES += 16;
 		break;
+
 	case 0xB3:	//otir
 		B--;
 		z80->iowritefunc(BC, read8(HL++));
@@ -1183,30 +1204,40 @@ __inline void step_ed()
 		break;
 
 	case 0xB8:	//lddr
+		stmp = read8(HL--);
+		write8(DE--, stmp);
+		F &= (FLAG_S | FLAG_Z | FLAG_C);
+		F |= --BC ? FLAG_P : 0;
+		stmp += A;
+		F |= (stmp & 8) | ((stmp << 4) & 0x20);
+		if (BC > 0)
+			PC -= 2;
+
+		/*
 		write16(DE--, read16(HL--));
 		BC--;
 		if (BC > 0)
 			PC -= 2;
-		F &= ~(FLAG_H | FLAG_N | FLAG_P);
+		F &= ~(FLAG_H | FLAG_N | FLAG_P);*/
 		break;
 
 	case 0xB9:	//cpdr
 		tmp = read8(HL--);
-		stmp = A;
-		stmp -= tmp;
-		BC--;
-		F &= ~(FLAG_S | FLAG_P | FLAG_Z | FLAG_H);
-		if (stmp & 0xFF00)
-			F |= FLAG_S;
-		if (stmp == 0)
-			F |= FLAG_Z;
-		if ((BC - 1) == 0)
-			F |= FLAG_P;
-		if ((A & 0xF) + (tmp & 0xF) >= 0x10)
-			F |= FLAG_H;
-		F |= FLAG_N;
-		if (BC > 0)
+		stmp = A - tmp;
+		if (--BC && stmp) {
 			PC -= 2;
+		}
+
+		F = (F & FLAG_C) | FLAG_N;
+		F |= (A ^ tmp ^ stmp) & FLAG_H;
+		F |= (BC ? FLAG_P : 0);
+		F |= stmp & FLAG_S;
+		F |= (stmp == 0) ? FLAG_Z : 0;
+
+		//calculate the x and y flags
+		stmp -= (F >> 4) & 1;
+		F |= (stmp << 4) & 0x20;
+		F |= stmp & 0x08;
 		CYCLES += 16;
 		break;
 
@@ -1221,19 +1252,19 @@ __inline void step_fdcb()
 	unsigned char data = read8(PC++);
 	unsigned char opcode = read8(PC++);
 	unsigned short stmp, tmp16;
-	unsigned char tmp;
+	unsigned char tmp, tmp2;
 	unsigned long ltmp;
 
 	ltmp = (unsigned int)(unsigned short)((signed short)IY + (signed char)data);	\
 		switch (opcode) {
-		case 0x06: tmp = read8(ltmp); RLC(tmp); write8(ltmp, tmp); break; //rlc (ix+n)
-		case 0x0E: tmp = read8(ltmp); RRC(tmp); write8(ltmp, tmp); break; //rrc (ix+n)
-		case 0x16: tmp = read8(ltmp); RL(tmp); write8(ltmp, tmp); break; //rl (ix+n)
-		case 0x1E: tmp = read8(ltmp); RR(tmp); write8(ltmp, tmp); break; //rr (ix+n)
-		case 0x26: tmp = read8(ltmp); SLA(tmp); write8(ltmp, tmp); break; //sla (ix+n)
-		case 0x2E: tmp = read8(ltmp); SRA(tmp); write8(ltmp, tmp); break; //sra (ix+n)
-		case 0x36: tmp = read8(ltmp); SLL(tmp); write8(ltmp, tmp); break; //sla (ix+n)
-		case 0x3E: tmp = read8(ltmp); SRL(tmp); write8(ltmp, tmp); break; //sra (ix+n)
+		case 0x06: tmp2 = read8(ltmp); RLC(tmp2); write8(ltmp, tmp2); break; //rlc (ix+n)
+		case 0x0E: tmp2 = read8(ltmp); RRC(tmp2); write8(ltmp, tmp2); break; //rrc (ix+n)
+		case 0x16: tmp2 = read8(ltmp); RL(tmp2);  write8(ltmp, tmp2); break; //rl (ix+n)
+		case 0x1E: tmp2 = read8(ltmp); RR(tmp2);  write8(ltmp, tmp2); break; //rr (ix+n)
+		case 0x26: tmp2 = read8(ltmp); SLA(tmp2); write8(ltmp, tmp2); break; //sla (ix+n)
+		case 0x2E: tmp2 = read8(ltmp); SRA(tmp2); write8(ltmp, tmp2); break; //sra (ix+n)
+		case 0x36: tmp2 = read8(ltmp); SLL(tmp2); write8(ltmp, tmp2); break; //sla (ix+n)
+		case 0x3E: tmp2 = read8(ltmp); SRL(tmp2); write8(ltmp, tmp2); break; //sra (ix+n)
 		case 0x40:
 		case 0x41:
 		case 0x42:
@@ -1438,7 +1469,7 @@ __inline void step_fd()
 	unsigned char opcode = read8(PC++);
 	unsigned short stmp, tmp16;
 	unsigned char tmp;
-	unsigned long ltmp;
+	unsigned long ltmp, otmp;
 
 	switch (opcode) {
 	case 0x09:	ADD16(IY, BC);	CYCLES += 7;	break;
@@ -1504,7 +1535,9 @@ __inline void step_fd()
 		break;
 	case 0x35:	//dec (IY+d)
 		ltmp = (unsigned long)(unsigned short)((signed short)IY + (signed char)read8(PC++));
-		write8(ltmp, read8(ltmp) - 1);
+		tmp = read8(ltmp);
+		DEC(tmp);
+		write8(ltmp, tmp);
 		CYCLES += 19;
 		break;
 
@@ -1563,30 +1596,30 @@ __inline void step_fd()
 		CYCLES += 19;
 		break;
 	case 0x5F:	E = A;								CYCLES += 4;	break;
-	case 0x60:	H = B;								CYCLES += 4;	break;
-	case 0x61:	H = C;								CYCLES += 4;	break;
-	case 0x62:	H = D;								CYCLES += 4;	break;
-	case 0x63:	H = E;								CYCLES += 4;	break;
-	case 0x64:	H = IYH;							CYCLES += 4;	break;
-	case 0x65:	H = IYL;							CYCLES += 4;	break;
+	case 0x60:	IYH = B;								CYCLES += 4;	break;
+	case 0x61:	IYH = C;								CYCLES += 4;	break;
+	case 0x62:	IYH = D;								CYCLES += 4;	break;
+	case 0x63:	IYH = E;								CYCLES += 4;	break;
+	case 0x64:	IYH = IYH;							CYCLES += 4;	break;
+	case 0x65:	IYH = IYL;							CYCLES += 4;	break;
 	case 0x66:	//ld h,(IY+d)
 		ltmp = (unsigned long)(unsigned short)((signed short)IY + (signed char)read8(PC++));
 		H = read8(ltmp);
 		CYCLES += 19;
 		break;
-	case 0x67:	H = A;								CYCLES += 4;	break;
-	case 0x68:	L = B;								CYCLES += 4;	break;
-	case 0x69:	L = C;								CYCLES += 4;	break;
-	case 0x6A:	L = D;								CYCLES += 4;	break;
-	case 0x6B:	L = E;								CYCLES += 4;	break;
-	case 0x6C:	L = IYH;							CYCLES += 4;	break;
-	case 0x6D:	L = IYL;							CYCLES += 4;	break;
+	case 0x67:	IYH = A;								CYCLES += 4;	break;
+	case 0x68:	IYL = B;								CYCLES += 4;	break;
+	case 0x69:	IYL = C;								CYCLES += 4;	break;
+	case 0x6A:	IYL = D;								CYCLES += 4;	break;
+	case 0x6B:	IYL = E;								CYCLES += 4;	break;
+	case 0x6C:	IYL = IYH;							CYCLES += 4;	break;
+	case 0x6D:	IYL = IYL;							CYCLES += 4;	break;
 	case 0x6E:	//ld l,(IY+d)
 		ltmp = (unsigned long)(unsigned short)((signed short)IY + (signed char)read8(PC++));
 		L = read8(ltmp);
 		CYCLES += 19;
 		break;
-	case 0x6F:	L = A;								CYCLES += 4;	break;
+	case 0x6F:	IYL = A;								CYCLES += 4;	break;
 
 	case 0x70:	//ld (IY+d),b
 		ltmp = (unsigned long)(unsigned short)((signed short)IY + (signed char)read8(PC++));
@@ -1714,20 +1747,27 @@ __inline void step_fd()
 }
 
 static unsigned char tmp;
+static unsigned char tmp2;
 static unsigned short stmp, utmp[3];
-static unsigned long ltmp;
+static unsigned long ltmp, otmp;
 
 void deadz80_step()
 {
 	register u8 tmp8;
+
+	if (INSIDEIRQ) {
+		OPCODE = z80->irqfunc();
+		INSIDEIRQ = 0;
+	}
+	else
+		//fetch opcode from memory
+		OPCODE = read8(PC++);
 
 	//halt
 	if (HALT) {
 		return;
 	}
 
-	//fetch opcode and increment cycle counter by 4
-	OPCODE = read8(PC++);
 
 	//find what opcode it is and do what it does
 	switch(OPCODE) {
@@ -1817,7 +1857,7 @@ void deadz80_step()
 	case 0x14:	INC(D);					CYCLES += 4;	break;
 	case 0x15:	DEC(D);					CYCLES += 4;	break;
 	case 0x16:	D = read8(PC++);		CYCLES += 7;	break;
-	case 0x17:	RL(A);					CYCLES += 4;	break;
+	case 0x17:	RLA();					CYCLES += 4;	break;
 
 	case 0x18:	//jr simm8
 		stmp = (signed char)read8(PC++) + PC;
@@ -1872,7 +1912,33 @@ void deadz80_step()
 	case 0x26:	H = read8(PC++);		CYCLES += 7;	break;
 
 	case 0x27:	//daa
-		DAA;
+		//		DAA;
+
+	{
+		int     a, c, d;
+		a = A;
+
+		if (a > 0x99 || (F & FLAG_C)) {
+			c = FLAG_C;
+			d = 0x60;
+		}
+		else
+			c = d = 0;
+
+		if ((a & 0x0f) > 0x09 || (F & FLAG_H))
+			d += 0x06;
+
+		A += (F & FLAG_N) ? -d : +d;
+
+		F = (F & FLAG_N) | (A & 0x28) | c;
+		F |= (A ^ a) & FLAG_H;
+		if (A == 0)
+			F |= FLAG_Z;
+		if (A & 0x80)
+			F |= FLAG_S;
+		if (parity[A])
+			F |= FLAG_P;
+	}
 		break;
 
 	case 0x28:	//jr z,simm8
@@ -1900,7 +1966,8 @@ void deadz80_step()
 
 	case 0x2F:	//cpl
 		A ^= 0xFF;
-		F |= FLAG_N | FLAG_H | 0x28;
+		F &= ~(FLAG_N | FLAG_H | 0x28);
+		F |= FLAG_N | FLAG_H | (A & 0x28);
 		break;
 
 	case 0x30:	//jr nc,simm8
@@ -1947,7 +2014,8 @@ void deadz80_step()
 		break;
 
 	case 0x37:
-		F |= FLAG_C;
+		F &= ~(FLAG_H | FLAG_N | 0x28);
+		F |= FLAG_C | (A & 0x28);
 		break;
 
 	case 0x38:	//jr c,simm8
@@ -1977,9 +2045,9 @@ void deadz80_step()
 	case 0x3E:	A = read8(PC++);					CYCLES += 7;	break;
 
 	case 0x3F:	//ccf
-		F &= FLAG_P | FLAG_Z | FLAG_S;
-		F |= (F & FLAG_C) ? FLAG_H : FLAG_C;
-		F |= A & 0x28;
+		tmp = F & FLAG_C;
+		F &= FLAG_V | FLAG_P | FLAG_Z | FLAG_S;
+		F |= (A & 0x28) | (tmp << 4) | (tmp ^ FLAG_C);
 		break;
 
 	case 0x40:	B = B;								CYCLES += 4;	break;
@@ -2148,7 +2216,7 @@ void deadz80_step()
 		break;
 	case 0xDC:	CALL((F & FLAG_C) != 0);							break;
 	case 0xDD:	step_dd();												break;
-	case 0xDE:	SBC(read8(PC++));					CYCLES += 4;	break;
+	case 0xDE:	tmp2 = read8(PC++); SBC(tmp2); CYCLES += 4;	break;
 	case 0xDF:	RST(0x18);												break;
 	case 0xE0:	RET((F & FLAG_P) == 0);								break;
 	case 0xE1:	POP16(HL);							CYCLES += 10;	break;
@@ -2257,6 +2325,77 @@ static char *op_dd[256] =
 	"?", "?", "?", "?", "?", "?", "?", "?",
 	"?", "?", "?", "?", "?", "?", "?", "?",
 	"?", "pop ix", "?", "?", "?", "?", "push ix", "?",
+	"?", "?", "?", "?", "?", "?", "?", "?",
+	"?", "?", "?", "?", "?", "?", "?", "?",
+	"?", "?", "?", "?", "?", "?", "?", "?",
+};
+static char *op_ddcb[256] =
+{
+	"?", "?", "?", "?", "?", "?", "?", "?",
+	"?", "?", "?", "?", "?", "?", "?", "?",
+	"?", "?", "?", "?", "?", "?", "?", "?",
+	"?", "?", "?", "?", "?", "?", "?", "?",
+	"?", "?", "?", "?", "?", "?", "?", "?",
+	"?", "?", "?", "?", "?", "?", "?", "?",
+	"?", "?", "?", "?", "?", "?", "?", "?",
+	"?", "?", "?", "?", "?", "?", "?", "?",
+	"?", "?", "?", "?", "?", "?", "?", "?",
+	"?", "?", "?", "?", "?", "?", "?", "?",
+	"?", "?", "?", "?", "?", "?", "?", "?",
+	"?", "?", "?", "?", "?", "?", "?", "?",
+	"?", "?", "?", "?", "?", "?", "?", "?",
+	"?", "?", "?", "?", "?", "?", "?", "?",
+	"?", "?", "?", "?", "?", "?", "?", "?",
+	"?", "?", "?", "?", "?", "?", "?", "?",
+	"?", "?", "?", "?", "?", "?", "?", "?",
+	"?", "?", "?", "?", "?", "?", "?", "?",
+	"?", "?", "?", "?", "?", "?", "?", "?",
+	"?", "?", "?", "?", "?", "?", "?", "?",
+	"?", "?", "?", "?", "?", "?", "?", "?",
+	"?", "?", "?", "?", "?", "?", "?", "?",
+	"?", "?", "?", "?", "?", "?", "?", "?",
+	"?", "?", "?", "?", "?", "?", "?", "?",
+	"?", "?", "?", "?", "?", "?", "?", "?",
+	"?", "?", "?", "?", "?", "?", "?", "?",
+	"?", "?", "?", "?", "?", "?", "?", "?",
+	"?", "?", "?", "?", "?", "?", "?", "?",
+	"?", "?", "?", "?", "?", "?", "?", "?",
+	"?", "?", "?", "?", "?", "?", "?", "?",
+	"?", "?", "?", "?", "?", "?", "?", "?",
+	"?", "?", "?", "?", "?", "?", "?", "?",
+};
+
+static char *op_fdcb[256] =
+{
+	"?", "?", "?", "?", "?", "?", "?", "?",
+	"?", "?", "?", "?", "?", "?", "?", "?",
+	"?", "?", "?", "?", "?", "?", "?", "?",
+	"?", "?", "?", "?", "?", "?", "?", "?",
+	"?", "?", "?", "?", "?", "?", "?", "?",
+	"?", "?", "?", "?", "?", "?", "?", "?",
+	"?", "?", "?", "?", "?", "?", "?", "?",
+	"?", "?", "?", "?", "?", "?", "?", "?",
+	"?", "?", "?", "?", "?", "?", "?", "?",
+	"?", "?", "?", "?", "?", "?", "?", "?",
+	"?", "?", "?", "?", "?", "?", "?", "?",
+	"?", "?", "?", "?", "?", "?", "?", "?",
+	"?", "?", "?", "?", "?", "?", "?", "?",
+	"?", "?", "?", "?", "?", "?", "?", "?",
+	"?", "?", "?", "?", "?", "?", "?", "?",
+	"?", "?", "?", "?", "?", "?", "?", "?",
+	"?", "?", "?", "?", "?", "?", "?", "?",
+	"?", "?", "?", "?", "?", "?", "?", "?",
+	"?", "?", "?", "?", "?", "?", "?", "?",
+	"?", "?", "?", "?", "?", "?", "?", "?",
+	"?", "?", "?", "?", "?", "?", "?", "?",
+	"?", "?", "?", "?", "?", "?", "?", "?",
+	"?", "?", "?", "?", "?", "?", "?", "?",
+	"?", "?", "?", "?", "?", "?", "?", "?",
+	"?", "?", "?", "?", "?", "?", "?", "?",
+	"?", "?", "?", "?", "?", "?", "?", "?",
+	"?", "?", "?", "?", "?", "?", "?", "?",
+	"?", "?", "?", "?", "?", "?", "?", "?",
+	"?", "?", "?", "?", "?", "?", "?", "?",
 	"?", "?", "?", "?", "?", "?", "?", "?",
 	"?", "?", "?", "?", "?", "?", "?", "?",
 	"?", "?", "?", "?", "?", "?", "?", "?",
@@ -2447,7 +2586,7 @@ u32 deadz80_disassemble(char *dest, u32 p)
 	u32 oldpc = p;
 	u8 opcode, opcode2, data, data2;
 	char *ptr = 0, str[128], tmp[256];
-
+	int n;
 
 	//disasm = line 21
 	//regs = line 40
@@ -2465,8 +2604,16 @@ u32 deadz80_disassemble(char *dest, u32 p)
 		break;
 	case 0xDD:
 		opcode2 = deadz80_memread(p++);
-		ptr = op_dd[opcode2];
-		sprintf(dest, "$%04X: %02X %02X", oldpc, opcode, opcode2);
+		if (opcode2 == 0xCB) {
+			opcode = deadz80_memread(p++);
+			opcode2 = deadz80_memread(p++);
+			ptr = op_ddcb[opcode2];
+			sprintf(dest, "$%04X: DD CB %02X %02X", oldpc, opcode, opcode2);
+		}
+		else {
+			ptr = op_dd[opcode2];
+			sprintf(dest, "$%04X: %02X %02X", oldpc, opcode, opcode2);
+		}
 		break;
 	case 0xED:
 		opcode2 = deadz80_memread(p++);
@@ -2475,8 +2622,16 @@ u32 deadz80_disassemble(char *dest, u32 p)
 		break;
 	case 0xFD:
 		opcode2 = deadz80_memread(p++);
-		ptr = op_fd[opcode2];
-		sprintf(dest, "$%04X: %02X %02X", oldpc, opcode, opcode2);
+		if (opcode2 == 0xCB) {
+			opcode = deadz80_memread(p++);
+			opcode2 = deadz80_memread(p++);
+			ptr = op_fdcb[opcode2];
+			sprintf(dest, "$%04X: FD CB %02X %02X", oldpc, opcode, opcode2);
+		}
+		else {
+			ptr = op_fd[opcode2];
+			sprintf(dest, "$%04X: %02X %02X", oldpc, opcode, opcode2);
+		}
 		break;
 	default:
 		ptr = op_main[opcode];
@@ -2486,7 +2641,7 @@ u32 deadz80_disassemble(char *dest, u32 p)
 	if (ptr == 0)
 		sprintf(dest, "$%04X: %02X", oldpc, opcode);
 	else {
-		strcpy(str, "\t");
+		str[0] = 0;
 		while (*ptr) {
 			switch (*ptr) {
 			case 'R':
@@ -2519,12 +2674,15 @@ u32 deadz80_disassemble(char *dest, u32 p)
 			}
 			ptr++;
 		}
-		if (dest[strlen(dest) - 1] != '\t')
-			strcat(dest, "\t");
-		strcat(dest, str);
+//		if (dest[strlen(dest) - 1] != '\t')
+//			strcat(dest, "\t");
+		for (n = strlen(dest); n < 21; n++) {
+			dest[n] = ' ';
+		}
+		sprintf(dest + 20, str);
 	}
 	dest[strlen(dest)] = ' ';
-	sprintf(dest + 40, "AF=$%04X BC=$%04X DE=$%04X HL=$%04X SP=$%04X PC=$%04X", z80->regs->af.w, z80->regs->bc.w, z80->regs->de.w, z80->regs->hl.w, z80->sp, z80->pc);
+	sprintf(dest + 41, "AF=$%04X BC=$%04X DE=$%04X HL=$%04X SP=$%04X PC=$%04X", z80->regs->af.w, z80->regs->bc.w, z80->regs->de.w, z80->regs->hl.w, z80->sp, z80->pc);
 	{
 	//	FILE *fp = fopen("cpu.log", "at");
 	//	fprintf(fp,"%s\n",dest);

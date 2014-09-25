@@ -59,12 +59,13 @@
 
 #define ADC(v)					\
 	stmp = A + v + (F & 1);	\
+	otmp = (A & 0xF) + (v & 0xF) + (F & 1); \
 	F = stmp & 0x28;			\
+	if((otmp) >= 0x10)	\
+		F |= FLAG_H;		\
 	checkSZ(stmp & 0xFF);		\
 	checkC(stmp);				\
 	checkV(A,v,stmp);		\
-	if(((A & 0xF) + (v & 0xF)) >= 0x10)	\
-	F |= FLAG_H;		\
 	A = (u8)stmp;
 
 #define ADC16(v1,v2)					\
@@ -125,28 +126,24 @@
 	checkV(stmp,n,A);			\
 	if((A & 0xF) < (n & 0xF))		\
 		F |= FLAG_H;
-/*
+
 #define BIT(b,r)			\
 tmp = (1 << b) & r;		\
-F &= FLAG_C;		\
-F |= FLAG_H | (r & 0x28);	\
-checkSZ(tmp);	\
-checkP(tmp);
-*/
-#define BIT(b,r)		\
-	tmp = (1 << b) & r;	\
-	F = (F & FLAG_C) | FLAG_H;	\
-	F |= (r) & 0x28;	\
-	if((b == 7) && (r & 0x80))	\
-		F |= FLAG_S;	\
-	if(r == 0)			\
-		F |= FLAG_P | FLAG_Z;
+F &= FLAG_C; \
+F |= (r & 0x28) | FLAG_H;		\
+F |= (tmp ? 0 : FLAG_Z | FLAG_P) | (tmp & FLAG_S);
+
+#define BIT_HL(b,r)			\
+tmp = (1 << b) & r;		\
+F &= FLAG_C; \
+F |= (HL & 0x28) | FLAG_H;		\
+F |= (tmp ? 0 : FLAG_Z | FLAG_P) | (tmp & FLAG_S);
 
 #define SET(b,r)			\
-	tmp = (1 << b) | r;
+	r = (1 << b) | r;
 
 #define RES(b,r)			\
-	tmp = r & ~(1 << b);
+	r = r & ~(1 << b);
 
 #define SUB(n)						\
 	tmp = n;						\
@@ -287,98 +284,59 @@ checkP(tmp);
 	checkSZ(d);					\
 	checkP(d);
 
+#define RLA()					\
+	tmp = (A >> 7) & 1;		\
+	A = (A << 1) | (F & FLAG_C);\
+	F &= (FLAG_S | FLAG_Z | FLAG_P);		\
+	F |= tmp | (A & 0x28);
+
 #define RL(d)					\
-	tmp = d >> 7;				\
+	tmp = (d >> 7) & 1;		\
 	d = (d << 1) | (F & FLAG_C);\
-	F &= ~FLAG_C;				\
-	F = tmp | (d & 0x28);		\
+	F = (d & 0x28) | tmp;		\
 	checkSZ(d);					\
 	checkP(d);
 
 #define RR(d)					\
 	tmp = d & 1;				\
 	d = (d >> 1) | ((F & FLAG_C) << 7);\
-	F &= ~FLAG_C;				\
-	F |= (d & 0x28) | tmp;		\
+	F = (d & 0x28) | tmp;		\
 	checkSZ(d);					\
 	checkP(d);
 
 #define SLA(d)					\
-	F &= ~FLAG_C;				\
-	F |= d >> 7;				\
+	F = d >> 7;					\
 	d = d << 1;					\
 	F |= (d & 0x28);			\
 	checkSZ(d);					\
 	checkP(d);
+
 #define SRA(d)					\
-	F &= ~FLAG_C;				\
-	F |= d & 1;					\
+	F = d & 1;					\
 	d = (d >> 1) | (d & 0x80);	\
 	F |= (d & 0x28);			\
 	checkSZ(d);					\
 	checkP(d);
+
 #define SLL(d)					\
-	F &= ~FLAG_C;				\
-	F |= d >> 7;				\
-	d = d << 1;					\
+	F = d >> 7;					\
+	d = (d << 1) | 1;			\
 	F |= (d & 0x28);			\
 	checkSZ(d);					\
 	checkP(d);
+
 #define SRL(d)					\
-	F &= ~FLAG_C;				\
-	F |= d & 1;					\
+	F = d & 1;					\
 	d = d >> 1;					\
 	F |= (d & 0x28);			\
 	checkSZ(d);					\
 	checkP(d);
 
-//stolen directly from mame's z80.c
-#define DAA {													\
-	unsigned char cf, nf, hf, lo, hi, diff;						\
-	cf = F & FLAG_C;											\
-	nf = F & FLAG_N;											\
-	hf = F & FLAG_H;											\
-	lo = A & 15;												\
-	hi = A / 16;												\
-																\
-	if (cf)														\
-		{															\
-		diff = (lo <= 9 && !hf) ? 0x60 : 0x66;					\
-		}															\
-		else														\
-		{															\
-		if (lo >= 10)											\
-				{														\
-			diff = hi <= 8 ? 0x06 : 0x66;						\
-				}														\
-				else													\
-				{														\
-			if (hi >= 10)										\
-						{													\
-				diff = hf ? 0x66 : 0x60;						\
-						}													\
-						else												\
-						{													\
-				diff = hf ? 0x06 : 0x00;						\
-						}													\
-				}														\
-		}															\
-	if (nf) A -= diff;											\
-		else A += diff;												\
-																\
-	F &= ~FLAG_N;												\
-	checkSZ(A);													\
-	checkP(A);													\
-	if (cf || (lo <= 9 ? hi >= 10 : hi >= 9)) F |= FLAG_C;		\
-	if (nf ? hf && lo <= 5 : lo >= 10)	F |= FLAG_H;			\
-}
-
-//special opcodes for the indexed stuff
 #define BIT_IDX(b)	\
-	tmp = read8(ltmp);	\
-	BIT(b,tmp);					\
-	F &= ~0x28;					\
-	F |= (ltmp >> 8) & 0x28;	\
+tmp = (1 << b) & read8(ltmp);		\
+F &= FLAG_C; \
+F |= ((ltmp >> 8) & 0x28) | FLAG_H;		\
+F |= (tmp ? 0 : FLAG_Z | FLAG_P) | (tmp & FLAG_S); \
 	CYCLES += 19;
 
 #define SET_IDX(b)	\

@@ -59,7 +59,7 @@ typedef struct deadz80_s {
 	u8				opcode, opcode2;		//opcodes currently being executed
 	u8				nmistate, irqstate;	//states of the nmi/irq lines
 	u8				halt;						//cpu is halted indicator
-	u8				intmode;
+	u8				intmode, insideirq;
 
 } deadz80_t;
 
