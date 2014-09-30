@@ -175,7 +175,7 @@ void deadz80_reset()
 }
 
 void deadz80_nmi()
-{
+ {
 	IFF2 = IFF1;
 	IFF1 = 0;
 	write8(--SP, (PC >> 8) & 0xFF);
@@ -2256,6 +2256,19 @@ void deadz80_step()
 		return;
 
 	}
+}
+
+u32 deadz80_execute(u32 cycles)
+{
+	u32 c, oldc, total = 0;
+
+	while (total < cycles) {
+		oldc = CYCLES;
+		deadz80_step();
+		c = CYCLES - oldc;
+		total += c;
+	}
+	return(total);
 }
 
 static char *op_xx_cb[256] =

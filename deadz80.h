@@ -5,6 +5,8 @@
 #define Z80_PAGE_SHIFT	12
 #define Z80_PAGE_MASK	0xFFF
 
+#define BAD_OPCODE		0x80000000
+
 typedef unsigned char u8;
 typedef unsigned short u16;
 typedef unsigned int u32;
@@ -63,11 +65,20 @@ typedef struct deadz80_s {
 
 } deadz80_t;
 
-void deadz80_init();
-void deadz80_setcontext(deadz80_t *z);
-deadz80_t *deadz80_getcontext();
-void deadz80_reset();
-void deadz80_step();
-u32 deadz80_disassemble(char *dest, u32 p);
+#ifdef __cplusplus
+extern "C" {
+#endif
+	void deadz80_init();
+	void deadz80_setcontext(deadz80_t *z);
+	deadz80_t *deadz80_getcontext();
+	void deadz80_reset();
+	void deadz80_nmi();
+	void deadz80_irq();
+	void deadz80_step();
+	u32 deadz80_execute(u32 cycles);
+	u32 deadz80_disassemble(char *dest, u32 p);
+#ifdef __cplusplus
+}
+#endif
 
 #endif
