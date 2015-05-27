@@ -337,7 +337,7 @@ tmp = (1 << b) & read8(ltmp);		\
 F &= FLAG_C; \
 F |= ((ltmp >> 8) & 0x28) | FLAG_H;		\
 F |= (tmp ? 0 : FLAG_Z | FLAG_P) | (tmp & FLAG_S); \
-	CYCLES += 19;
+	CYCLES += 20;
 
 #define SET_IDX(b)	\
 	tmp = read8(ltmp);	\

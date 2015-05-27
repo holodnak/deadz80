@@ -299,198 +299,198 @@ __inline void step_cb()
 	case 0x3D:	SRL(L);		CYCLES += 8;	break;
 	case 0x3E:	tmp = read8(HL);	SRL(tmp);	write8(HL, tmp);	CYCLES += 14;	break;
 	case 0x3F:	SRL(A);		CYCLES += 8;	break;
-	case 0x40:	BIT(0, B);	CYCLES += 4;	break;
-	case 0x41:	BIT(0, C);	CYCLES += 4;	break;
-	case 0x42:	BIT(0, D);	CYCLES += 4;	break;
-	case 0x43:	BIT(0, E);	CYCLES += 4;	break;
-	case 0x44:	BIT(0, H);	CYCLES += 4;	break;
-	case 0x45:	BIT(0, L);	CYCLES += 4;	break;
-	case 0x46:	tmp = read8(HL);	BIT_HL(0, tmp);	CYCLES += 4;	break;
-	case 0x47:	BIT(0, A);	CYCLES += 4;	break;
-	case 0x48:	BIT(1, B);	CYCLES += 4;	break;
-	case 0x49:	BIT(1, C);	CYCLES += 4;	break;
-	case 0x4A:	BIT(1, D);	CYCLES += 4;	break;
-	case 0x4B:	BIT(1, E);	CYCLES += 4;	break;
-	case 0x4C:	BIT(1, H);	CYCLES += 4;	break;
-	case 0x4D:	BIT(1, L);	CYCLES += 4;	break;
-	case 0x4E:	tmp = read8(HL);	BIT_HL(1, tmp);	CYCLES += 4;	break;
-	case 0x4F:	BIT(1, A);	CYCLES += 4;	break;
-	case 0x50:	BIT(2, B);	CYCLES += 4;	break;
-	case 0x51:	BIT(2, C);	CYCLES += 4;	break;
-	case 0x52:	BIT(2, D);	CYCLES += 4;	break;
-	case 0x53:	BIT(2, E);	CYCLES += 4;	break;
-	case 0x54:	BIT(2, H);	CYCLES += 4;	break;
-	case 0x55:	BIT(2, L);	CYCLES += 4;	break;
-	case 0x56:	tmp = read8(HL);	BIT_HL(2, tmp);	CYCLES += 4;	break;
-	case 0x57:	BIT(2, A);	CYCLES += 4;	break;
-	case 0x58:	BIT(3, B);	CYCLES += 4;	break;
-	case 0x59:	BIT(3, C);	CYCLES += 4;	break;
-	case 0x5A:	BIT(3, D);	CYCLES += 4;	break;
-	case 0x5B:	BIT(3, E);	CYCLES += 4;	break;
-	case 0x5C:	BIT(3, H);	CYCLES += 4;	break;
-	case 0x5D:	BIT(3, L);	CYCLES += 4;	break;
-	case 0x5E:	tmp = read8(HL);	BIT_HL(3, tmp);	CYCLES += 4;	break;
-	case 0x5F:	BIT(3, A);	CYCLES += 4;	break;
-	case 0x60:	BIT(4, B);	CYCLES += 4;	break;
-	case 0x61:	BIT(4, C);	CYCLES += 4;	break;
-	case 0x62:	BIT(4, D);	CYCLES += 4;	break;
-	case 0x63:	BIT(4, E);	CYCLES += 4;	break;
-	case 0x64:	BIT(4, H);	CYCLES += 4;	break;
-	case 0x65:	BIT(4, L);	CYCLES += 4;	break;
-	case 0x66:	tmp = read8(HL);	BIT_HL(4, tmp);	CYCLES += 4;	break;
-	case 0x67:	BIT(4, A);	CYCLES += 4;	break;
-	case 0x68:	BIT(5, B);	CYCLES += 4;	break;
-	case 0x69:	BIT(5, C);	CYCLES += 4;	break;
-	case 0x6A:	BIT(5, D);	CYCLES += 4;	break;
-	case 0x6B:	BIT(5, E);	CYCLES += 4;	break;
-	case 0x6C:	BIT(5, H);	CYCLES += 4;	break;
-	case 0x6D:	BIT(5, L);	CYCLES += 4;	break;
-	case 0x6E:	tmp = read8(HL);	BIT_HL(5, tmp);	CYCLES += 4;	break;
-	case 0x6F:	BIT(5, A);	CYCLES += 4;	break;
-	case 0x70:	BIT(6, B);	CYCLES += 4;	break;
-	case 0x71:	BIT(6, C);	CYCLES += 4;	break;
-	case 0x72:	BIT(6, D);	CYCLES += 4;	break;
-	case 0x73:	BIT(6, E);	CYCLES += 4;	break;
-	case 0x74:	BIT(6, H);	CYCLES += 4;	break;
-	case 0x75:	BIT(6, L);	CYCLES += 4;	break;
-	case 0x76:	tmp = read8(HL);	BIT_HL(6, tmp);	CYCLES += 4;	break;
-	case 0x77:	BIT(6, A);	CYCLES += 4;	break;
-	case 0x78:	BIT(7, B);	CYCLES += 4;	break;
-	case 0x79:	BIT(7, C);	CYCLES += 4;	break;
-	case 0x7A:	BIT(7, D);	CYCLES += 4;	break;
-	case 0x7B:	BIT(7, E);	CYCLES += 4;	break;
-	case 0x7C:	BIT(7, H);	CYCLES += 4;	break;
-	case 0x7D:	BIT(7, L);	CYCLES += 4;	break;
-	case 0x7E:	tmp = read8(HL);	BIT_HL(7, tmp);	CYCLES += 4;	break;
-	case 0x7F:	BIT(7, A);	CYCLES += 4;	break;
-	case 0x80:	RES(0, B);	CYCLES += 4;	break;
-	case 0x81:	RES(0, C);	CYCLES += 4;	break;
-	case 0x82:	RES(0, D);	CYCLES += 4;	break;
-	case 0x83:	RES(0, E);	CYCLES += 4;	break;
-	case 0x84:	RES(0, H);	CYCLES += 4;	break;
-	case 0x85:	RES(0, L);	CYCLES += 4;	break;
-	case 0x86:	tmp = read8(HL);	RES(0, tmp);	write8(HL, tmp);	CYCLES += 4;	break;
-	case 0x87:	RES(0, A);	CYCLES += 4;	break;
-	case 0x88:	RES(1, B);	CYCLES += 4;	break;
-	case 0x89:	RES(1, C);	CYCLES += 4;	break;
-	case 0x8A:	RES(1, D);	CYCLES += 4;	break;
-	case 0x8B:	RES(1, E);	CYCLES += 4;	break;
-	case 0x8C:	RES(1, H);	CYCLES += 4;	break;
-	case 0x8D:	RES(1, L);	CYCLES += 4;	break;
-	case 0x8E:	tmp = read8(HL);	RES(1, tmp);	write8(HL, tmp);	CYCLES += 4;	break;
-	case 0x8F:	RES(1, A);	CYCLES += 4;	break;
-	case 0x90:	RES(2, B);	CYCLES += 4;	break;
-	case 0x91:	RES(2, C);	CYCLES += 4;	break;
-	case 0x92:	RES(2, D);	CYCLES += 4;	break;
-	case 0x93:	RES(2, E);	CYCLES += 4;	break;
-	case 0x94:	RES(2, H);	CYCLES += 4;	break;
-	case 0x95:	RES(2, L);	CYCLES += 4;	break;
-	case 0x96:	tmp = read8(HL);	RES(2, tmp);	write8(HL, tmp);	CYCLES += 4;	break;
-	case 0x97:	RES(2, A);	CYCLES += 4;	break;
-	case 0x98:	RES(3, B);	CYCLES += 4;	break;
-	case 0x99:	RES(3, C);	CYCLES += 4;	break;
-	case 0x9A:	RES(3, D);	CYCLES += 4;	break;
-	case 0x9B:	RES(3, E);	CYCLES += 4;	break;
-	case 0x9C:	RES(3, H);	CYCLES += 4;	break;
-	case 0x9D:	RES(3, L);	CYCLES += 4;	break;
-	case 0x9E:	tmp = read8(HL);	RES(3, tmp);	write8(HL, tmp);	CYCLES += 4;	break;
-	case 0x9F:	RES(3, A);	CYCLES += 4;	break;
-	case 0xA0:	RES(4, B);	CYCLES += 4;	break;
-	case 0xA1:	RES(4, C);	CYCLES += 4;	break;
-	case 0xA2:	RES(4, D);	CYCLES += 4;	break;
-	case 0xA3:	RES(4, E);	CYCLES += 4;	break;
-	case 0xA4:	RES(4, H);	CYCLES += 4;	break;
-	case 0xA5:	RES(4, L);	CYCLES += 4;	break;
-	case 0xA6:	tmp = read8(HL);	RES(4, tmp);	write8(HL, tmp);	CYCLES += 4;	break;
-	case 0xA7:	RES(4, A);	CYCLES += 4;	break;
-	case 0xA8:	RES(5, B);	CYCLES += 4;	break;
-	case 0xA9:	RES(5, C);	CYCLES += 4;	break;
-	case 0xAA:	RES(5, D);	CYCLES += 4;	break;
-	case 0xAB:	RES(5, E);	CYCLES += 4;	break;
-	case 0xAC:	RES(5, H);	CYCLES += 4;	break;
-	case 0xAD:	RES(5, L);	CYCLES += 4;	break;
-	case 0xAE:	tmp = read8(HL);	RES(5, tmp);	write8(HL, tmp);	CYCLES += 4;	break;
-	case 0xAF:	RES(5, A);	CYCLES += 4;	break;
-	case 0xB0:	RES(6, B);	CYCLES += 4;	break;
-	case 0xB1:	RES(6, C);	CYCLES += 4;	break;
-	case 0xB2:	RES(6, D);	CYCLES += 4;	break;
-	case 0xB3:	RES(6, E);	CYCLES += 4;	break;
-	case 0xB4:	RES(6, H);	CYCLES += 4;	break;
-	case 0xB5:	RES(6, L);	CYCLES += 4;	break;
-	case 0xB6:	tmp = read8(HL);	RES(6, tmp);	write8(HL, tmp);	CYCLES += 4;	break;
-	case 0xB7:	RES(6, A);	CYCLES += 4;	break;
-	case 0xB8:	RES(7, B);	CYCLES += 4;	break;
-	case 0xB9:	RES(7, C);	CYCLES += 4;	break;
-	case 0xBA:	RES(7, D);	CYCLES += 4;	break;
-	case 0xBB:	RES(7, E);	CYCLES += 4;	break;
-	case 0xBC:	RES(7, H);	CYCLES += 4;	break;
-	case 0xBD:	RES(7, L);	CYCLES += 4;	break;
-	case 0xBE:	tmp = read8(HL);	RES(7, tmp);	write8(HL, tmp);	CYCLES += 4;	break;
-	case 0xBF:	RES(7, A);	CYCLES += 4;	break;
-	case 0xC0:	SET(0, B);	CYCLES += 4;	break;
-	case 0xC1:	SET(0, C);	CYCLES += 4;	break;
-	case 0xC2:	SET(0, D);	CYCLES += 4;	break;
-	case 0xC3:	SET(0, E);	CYCLES += 4;	break;
-	case 0xC4:	SET(0, H);	CYCLES += 4;	break;
-	case 0xC5:	SET(0, L);	CYCLES += 4;	break;
-	case 0xC6:	tmp = read8(HL);	SET(0, tmp);	write8(HL, tmp);	CYCLES += 4;	break;
-	case 0xC7:	SET(0, A);	CYCLES += 4;	break;
-	case 0xC8:	SET(1, B);	CYCLES += 4;	break;
-	case 0xC9:	SET(1, C);	CYCLES += 4;	break;
-	case 0xCA:	SET(1, D);	CYCLES += 4;	break;
-	case 0xCB:	SET(1, E);	CYCLES += 4;	break;
-	case 0xCC:	SET(1, H);	CYCLES += 4;	break;
-	case 0xCD:	SET(1, L);	CYCLES += 4;	break;
-	case 0xCE:	tmp = read8(HL);	SET(1, tmp);	write8(HL, tmp);	CYCLES += 4;	break;
-	case 0xCF:	SET(1, A);	CYCLES += 4;	break;
-	case 0xD0:	SET(2, B);	CYCLES += 4;	break;
-	case 0xD1:	SET(2, C);	CYCLES += 4;	break;
-	case 0xD2:	SET(2, D);	CYCLES += 4;	break;
-	case 0xD3:	SET(2, E);	CYCLES += 4;	break;
-	case 0xD4:	SET(2, H);	CYCLES += 4;	break;
-	case 0xD5:	SET(2, L);	CYCLES += 4;	break;
-	case 0xD6:	tmp = read8(HL);	SET(2, tmp);	write8(HL, tmp);	CYCLES += 4;	break;
-	case 0xD7:	SET(2, A);	CYCLES += 4;	break;
-	case 0xD8:	SET(3, B);	CYCLES += 4;	break;
-	case 0xD9:	SET(3, C);	CYCLES += 4;	break;
-	case 0xDA:	SET(3, D);	CYCLES += 4;	break;
-	case 0xDB:	SET(3, E);	CYCLES += 4;	break;
-	case 0xDC:	SET(3, H);	CYCLES += 4;	break;
-	case 0xDD:	SET(3, L);	CYCLES += 4;	break;
-	case 0xDE:	tmp = read8(HL);	SET(3, tmp);	write8(HL, tmp);	CYCLES += 4;	break;
-	case 0xDF:	SET(3, A);	CYCLES += 4;	break;
-	case 0xE0:	SET(4, B);	CYCLES += 4;	break;
-	case 0xE1:	SET(4, C);	CYCLES += 4;	break;
-	case 0xE2:	SET(4, D);	CYCLES += 4;	break;
-	case 0xE3:	SET(4, E);	CYCLES += 4;	break;
-	case 0xE4:	SET(4, H);	CYCLES += 4;	break;
-	case 0xE5:	SET(4, L);	CYCLES += 4;	break;
-	case 0xE6:	tmp = read8(HL);	SET(4, tmp);	write8(HL, tmp);	CYCLES += 4;	break;
-	case 0xE7:	SET(4, A);	CYCLES += 4;	break;
-	case 0xE8:	SET(5, B);	CYCLES += 4;	break;
-	case 0xE9:	SET(5, C);	CYCLES += 4;	break;
-	case 0xEA:	SET(5, D);	CYCLES += 4;	break;
-	case 0xEB:	SET(5, E);	CYCLES += 4;	break;
-	case 0xEC:	SET(5, H);	CYCLES += 4;	break;
-	case 0xED:	SET(5, L);	CYCLES += 4;	break;
-	case 0xEE:	tmp = read8(HL);	SET(5, tmp);	write8(HL, tmp);	CYCLES += 4;	break;
-	case 0xEF:	SET(5, A);	CYCLES += 4;	break;
-	case 0xF0:	SET(6, B);	CYCLES += 4;	break;
-	case 0xF1:	SET(6, C);	CYCLES += 4;	break;
-	case 0xF2:	SET(6, D);	CYCLES += 4;	break;
-	case 0xF3:	SET(6, E);	CYCLES += 4;	break;
-	case 0xF4:	SET(6, H);	CYCLES += 4;	break;
-	case 0xF5:	SET(6, L);	CYCLES += 4;	break;
-	case 0xF6:	tmp = read8(HL);	SET(6, tmp);	write8(HL, tmp);	CYCLES += 4;	break;
-	case 0xF7:	SET(6, A);	CYCLES += 4;	break;
-	case 0xF8:	SET(7, B);	CYCLES += 4;	break;
-	case 0xF9:	SET(7, C);	CYCLES += 4;	break;
-	case 0xFA:	SET(7, D);	CYCLES += 4;	break;
-	case 0xFB:	SET(7, E);	CYCLES += 4;	break;
-	case 0xFC:	SET(7, H);	CYCLES += 4;	break;
-	case 0xFD:	SET(7, L);	CYCLES += 4;	break;
-	case 0xFE:	tmp = read8(HL);	SET(7, tmp);	write8(HL, tmp);	CYCLES += 4;	break;
-	case 0xFF:	SET(7, A);	CYCLES += 4;	break;
+	case 0x40:	BIT(0, B);	CYCLES += 8;	break;
+	case 0x41:	BIT(0, C);	CYCLES += 8;	break;
+	case 0x42:	BIT(0, D);	CYCLES += 8;	break;
+	case 0x43:	BIT(0, E);	CYCLES += 8;	break;
+	case 0x44:	BIT(0, H);	CYCLES += 8;	break;
+	case 0x45:	BIT(0, L);	CYCLES += 8;	break;
+	case 0x46:	tmp = read8(HL);	BIT_HL(0, tmp);	CYCLES += 12;	break;
+	case 0x47:	BIT(0, A);	CYCLES += 8;	break;
+	case 0x48:	BIT(1, B);	CYCLES += 8;	break;
+	case 0x49:	BIT(1, C);	CYCLES += 8;	break;
+	case 0x4A:	BIT(1, D);	CYCLES += 8;	break;
+	case 0x4B:	BIT(1, E);	CYCLES += 8;	break;
+	case 0x4C:	BIT(1, H);	CYCLES += 8;	break;
+	case 0x4D:	BIT(1, L);	CYCLES += 8;	break;
+	case 0x4E:	tmp = read8(HL);	BIT_HL(1, tmp);	CYCLES += 12;	break;
+	case 0x4F:	BIT(1, A);	CYCLES += 8;	break;
+	case 0x50:	BIT(2, B);	CYCLES += 8;	break;
+	case 0x51:	BIT(2, C);	CYCLES += 8;	break;
+	case 0x52:	BIT(2, D);	CYCLES += 8;	break;
+	case 0x53:	BIT(2, E);	CYCLES += 8;	break;
+	case 0x54:	BIT(2, H);	CYCLES += 8;	break;
+	case 0x55:	BIT(2, L);	CYCLES += 8;	break;
+	case 0x56:	tmp = read8(HL);	BIT_HL(2, tmp);	CYCLES += 12;	break;
+	case 0x57:	BIT(2, A);	CYCLES += 8;	break;
+	case 0x58:	BIT(3, B);	CYCLES += 8;	break;
+	case 0x59:	BIT(3, C);	CYCLES += 8;	break;
+	case 0x5A:	BIT(3, D);	CYCLES += 8;	break;
+	case 0x5B:	BIT(3, E);	CYCLES += 8;	break;
+	case 0x5C:	BIT(3, H);	CYCLES += 8;	break;
+	case 0x5D:	BIT(3, L);	CYCLES += 8;	break;
+	case 0x5E:	tmp = read8(HL);	BIT_HL(3, tmp);	CYCLES += 12;	break;
+	case 0x5F:	BIT(3, A);	CYCLES += 8;	break;
+	case 0x60:	BIT(4, B);	CYCLES += 8;	break;
+	case 0x61:	BIT(4, C);	CYCLES += 8;	break;
+	case 0x62:	BIT(4, D);	CYCLES += 8;	break;
+	case 0x63:	BIT(4, E);	CYCLES += 8;	break;
+	case 0x64:	BIT(4, H);	CYCLES += 8;	break;
+	case 0x65:	BIT(4, L);	CYCLES += 8;	break;
+	case 0x66:	tmp = read8(HL);	BIT_HL(4, tmp);	CYCLES += 12;	break;
+	case 0x67:	BIT(4, A);	CYCLES += 8;	break;
+	case 0x68:	BIT(5, B);	CYCLES += 8;	break;
+	case 0x69:	BIT(5, C);	CYCLES += 8;	break;
+	case 0x6A:	BIT(5, D);	CYCLES += 8;	break;
+	case 0x6B:	BIT(5, E);	CYCLES += 8;	break;
+	case 0x6C:	BIT(5, H);	CYCLES += 8;	break;
+	case 0x6D:	BIT(5, L);	CYCLES += 8;	break;
+	case 0x6E:	tmp = read8(HL);	BIT_HL(5, tmp);	CYCLES += 12;	break;
+	case 0x6F:	BIT(5, A);	CYCLES += 8;	break;
+	case 0x70:	BIT(6, B);	CYCLES += 8;	break;
+	case 0x71:	BIT(6, C);	CYCLES += 8;	break;
+	case 0x72:	BIT(6, D);	CYCLES += 8;	break;
+	case 0x73:	BIT(6, E);	CYCLES += 8;	break;
+	case 0x74:	BIT(6, H);	CYCLES += 8;	break;
+	case 0x75:	BIT(6, L);	CYCLES += 8;	break;
+	case 0x76:	tmp = read8(HL);	BIT_HL(6, tmp);	CYCLES += 12;	break;
+	case 0x77:	BIT(6, A);	CYCLES += 8;	break;
+	case 0x78:	BIT(7, B);	CYCLES += 8;	break;
+	case 0x79:	BIT(7, C);	CYCLES += 8;	break;
+	case 0x7A:	BIT(7, D);	CYCLES += 8;	break;
+	case 0x7B:	BIT(7, E);	CYCLES += 8;	break;
+	case 0x7C:	BIT(7, H);	CYCLES += 8;	break;
+	case 0x7D:	BIT(7, L);	CYCLES += 8;	break;
+	case 0x7E:	tmp = read8(HL);	BIT_HL(7, tmp);	CYCLES += 12;	break;
+	case 0x7F:	BIT(7, A);	CYCLES += 8;	break;
+	case 0x80:	RES(0, B);	CYCLES += 8;	break;
+	case 0x81:	RES(0, C);	CYCLES += 8;	break;
+	case 0x82:	RES(0, D);	CYCLES += 8;	break;
+	case 0x83:	RES(0, E);	CYCLES += 8;	break;
+	case 0x84:	RES(0, H);	CYCLES += 8;	break;
+	case 0x85:	RES(0, L);	CYCLES += 8;	break;
+	case 0x86:	tmp = read8(HL);	RES(0, tmp);	write8(HL, tmp);	CYCLES += 15;	break;
+	case 0x87:	RES(0, A);	CYCLES += 8;	break;
+	case 0x88:	RES(1, B);	CYCLES += 8;	break;
+	case 0x89:	RES(1, C);	CYCLES += 8;	break;
+	case 0x8A:	RES(1, D);	CYCLES += 8;	break;
+	case 0x8B:	RES(1, E);	CYCLES += 8;	break;
+	case 0x8C:	RES(1, H);	CYCLES += 8;	break;
+	case 0x8D:	RES(1, L);	CYCLES += 8;	break;
+	case 0x8E:	tmp = read8(HL);	RES(1, tmp);	write8(HL, tmp);	CYCLES += 15;	break;
+	case 0x8F:	RES(1, A);	CYCLES += 8;	break;
+	case 0x90:	RES(2, B);	CYCLES += 8;	break;
+	case 0x91:	RES(2, C);	CYCLES += 8;	break;
+	case 0x92:	RES(2, D);	CYCLES += 8;	break;
+	case 0x93:	RES(2, E);	CYCLES += 8;	break;
+	case 0x94:	RES(2, H);	CYCLES += 8;	break;
+	case 0x95:	RES(2, L);	CYCLES += 8;	break;
+	case 0x96:	tmp = read8(HL);	RES(2, tmp);	write8(HL, tmp);	CYCLES += 15;	break;
+	case 0x97:	RES(2, A);	CYCLES += 8;	break;
+	case 0x98:	RES(3, B);	CYCLES += 8;	break;
+	case 0x99:	RES(3, C);	CYCLES += 8;	break;
+	case 0x9A:	RES(3, D);	CYCLES += 8;	break;
+	case 0x9B:	RES(3, E);	CYCLES += 8;	break;
+	case 0x9C:	RES(3, H);	CYCLES += 8;	break;
+	case 0x9D:	RES(3, L);	CYCLES += 8;	break;
+	case 0x9E:	tmp = read8(HL);	RES(3, tmp);	write8(HL, tmp);	CYCLES += 15;	break;
+	case 0x9F:	RES(3, A);	CYCLES += 8;	break;
+	case 0xA0:	RES(4, B);	CYCLES += 8;	break;
+	case 0xA1:	RES(4, C);	CYCLES += 8;	break;
+	case 0xA2:	RES(4, D);	CYCLES += 8;	break;
+	case 0xA3:	RES(4, E);	CYCLES += 8;	break;
+	case 0xA4:	RES(4, H);	CYCLES += 8;	break;
+	case 0xA5:	RES(4, L);	CYCLES += 8;	break;
+	case 0xA6:	tmp = read8(HL);	RES(4, tmp);	write8(HL, tmp);	CYCLES += 15;	break;
+	case 0xA7:	RES(4, A);	CYCLES += 8;	break;
+	case 0xA8:	RES(5, B);	CYCLES += 8;	break;
+	case 0xA9:	RES(5, C);	CYCLES += 8;	break;
+	case 0xAA:	RES(5, D);	CYCLES += 8;	break;
+	case 0xAB:	RES(5, E);	CYCLES += 8;	break;
+	case 0xAC:	RES(5, H);	CYCLES += 8;	break;
+	case 0xAD:	RES(5, L);	CYCLES += 8;	break;
+	case 0xAE:	tmp = read8(HL);	RES(5, tmp);	write8(HL, tmp);	CYCLES += 15;	break;
+	case 0xAF:	RES(5, A);	CYCLES += 8;	break;
+	case 0xB0:	RES(6, B);	CYCLES += 8;	break;
+	case 0xB1:	RES(6, C);	CYCLES += 8;	break;
+	case 0xB2:	RES(6, D);	CYCLES += 8;	break;
+	case 0xB3:	RES(6, E);	CYCLES += 8;	break;
+	case 0xB4:	RES(6, H);	CYCLES += 8;	break;
+	case 0xB5:	RES(6, L);	CYCLES += 8;	break;
+	case 0xB6:	tmp = read8(HL);	RES(6, tmp);	write8(HL, tmp);	CYCLES += 15;	break;
+	case 0xB7:	RES(6, A);	CYCLES += 8;	break;
+	case 0xB8:	RES(7, B);	CYCLES += 8;	break;
+	case 0xB9:	RES(7, C);	CYCLES += 8;	break;
+	case 0xBA:	RES(7, D);	CYCLES += 8;	break;
+	case 0xBB:	RES(7, E);	CYCLES += 8;	break;
+	case 0xBC:	RES(7, H);	CYCLES += 8;	break;
+	case 0xBD:	RES(7, L);	CYCLES += 8;	break;
+	case 0xBE:	tmp = read8(HL);	RES(7, tmp);	write8(HL, tmp);	CYCLES += 15;	break;
+	case 0xBF:	RES(7, A);	CYCLES += 8;	break;
+	case 0xC0:	SET(0, B);	CYCLES += 8;	break;
+	case 0xC1:	SET(0, C);	CYCLES += 8;	break;
+	case 0xC2:	SET(0, D);	CYCLES += 8;	break;
+	case 0xC3:	SET(0, E);	CYCLES += 8;	break;
+	case 0xC4:	SET(0, H);	CYCLES += 8;	break;
+	case 0xC5:	SET(0, L);	CYCLES += 8;	break;
+	case 0xC6:	tmp = read8(HL);	SET(0, tmp);	write8(HL, tmp);	CYCLES += 15;	break;
+	case 0xC7:	SET(0, A);	CYCLES += 8;	break;
+	case 0xC8:	SET(1, B);	CYCLES += 8;	break;
+	case 0xC9:	SET(1, C);	CYCLES += 8;	break;
+	case 0xCA:	SET(1, D);	CYCLES += 8;	break;
+	case 0xCB:	SET(1, E);	CYCLES += 8;	break;
+	case 0xCC:	SET(1, H);	CYCLES += 8;	break;
+	case 0xCD:	SET(1, L);	CYCLES += 8;	break;
+	case 0xCE:	tmp = read8(HL);	SET(1, tmp);	write8(HL, tmp);	CYCLES += 15;	break;
+	case 0xCF:	SET(1, A);	CYCLES += 8;	break;
+	case 0xD0:	SET(2, B);	CYCLES += 8;	break;
+	case 0xD1:	SET(2, C);	CYCLES += 8;	break;
+	case 0xD2:	SET(2, D);	CYCLES += 8;	break;
+	case 0xD3:	SET(2, E);	CYCLES += 8;	break;
+	case 0xD4:	SET(2, H);	CYCLES += 8;	break;
+	case 0xD5:	SET(2, L);	CYCLES += 8;	break;
+	case 0xD6:	tmp = read8(HL);	SET(2, tmp);	write8(HL, tmp);	CYCLES += 15;	break;
+	case 0xD7:	SET(2, A);	CYCLES += 8;	break;
+	case 0xD8:	SET(3, B);	CYCLES += 8;	break;
+	case 0xD9:	SET(3, C);	CYCLES += 8;	break;
+	case 0xDA:	SET(3, D);	CYCLES += 8;	break;
+	case 0xDB:	SET(3, E);	CYCLES += 8;	break;
+	case 0xDC:	SET(3, H);	CYCLES += 8;	break;
+	case 0xDD:	SET(3, L);	CYCLES += 8;	break;
+	case 0xDE:	tmp = read8(HL);	SET(3, tmp);	write8(HL, tmp);	CYCLES += 15;	break;
+	case 0xDF:	SET(3, A);	CYCLES += 8;	break;
+	case 0xE0:	SET(4, B);	CYCLES += 8;	break;
+	case 0xE1:	SET(4, C);	CYCLES += 8;	break;
+	case 0xE2:	SET(4, D);	CYCLES += 8;	break;
+	case 0xE3:	SET(4, E);	CYCLES += 8;	break;
+	case 0xE4:	SET(4, H);	CYCLES += 8;	break;
+	case 0xE5:	SET(4, L);	CYCLES += 8;	break;
+	case 0xE6:	tmp = read8(HL);	SET(4, tmp);	write8(HL, tmp);	CYCLES += 15;	break;
+	case 0xE7:	SET(4, A);	CYCLES += 8;	break;
+	case 0xE8:	SET(5, B);	CYCLES += 8;	break;
+	case 0xE9:	SET(5, C);	CYCLES += 8;	break;
+	case 0xEA:	SET(5, D);	CYCLES += 8;	break;
+	case 0xEB:	SET(5, E);	CYCLES += 8;	break;
+	case 0xEC:	SET(5, H);	CYCLES += 8;	break;
+	case 0xED:	SET(5, L);	CYCLES += 8;	break;
+	case 0xEE:	tmp = read8(HL);	SET(5, tmp);	write8(HL, tmp);	CYCLES += 15;	break;
+	case 0xEF:	SET(5, A);	CYCLES += 8;	break;
+	case 0xF0:	SET(6, B);	CYCLES += 8;	break;
+	case 0xF1:	SET(6, C);	CYCLES += 8;	break;
+	case 0xF2:	SET(6, D);	CYCLES += 8;	break;
+	case 0xF3:	SET(6, E);	CYCLES += 8;	break;
+	case 0xF4:	SET(6, H);	CYCLES += 8;	break;
+	case 0xF5:	SET(6, L);	CYCLES += 8;	break;
+	case 0xF6:	tmp = read8(HL);	SET(6, tmp);	write8(HL, tmp);	CYCLES += 15;	break;
+	case 0xF7:	SET(6, A);	CYCLES += 8;	break;
+	case 0xF8:	SET(7, B);	CYCLES += 8;	break;
+	case 0xF9:	SET(7, C);	CYCLES += 8;	break;
+	case 0xFA:	SET(7, D);	CYCLES += 8;	break;
+	case 0xFB:	SET(7, E);	CYCLES += 8;	break;
+	case 0xFC:	SET(7, H);	CYCLES += 8;	break;
+	case 0xFD:	SET(7, L);	CYCLES += 8;	break;
+	case 0xFE:	tmp = read8(HL);	SET(7, tmp);	write8(HL, tmp);	CYCLES += 15;	break;
+	case 0xFF:	SET(7, A);	CYCLES += 8;	break;
 	default:
 		printf("bad CB opcode $%02X\n", opcode);
 		break;
@@ -727,8 +727,8 @@ __inline void step_dd()
 	unsigned long ltmp, otmp;
 
 	switch (opcode) {
-	case 0x09:	ADD16(IX, BC);				CYCLES += 7;	break;
-	case 0x19:	ADD16(IX, DE);				CYCLES += 7;	break;
+	case 0x09:	ADD16(IX, BC);				CYCLES += 8;	break;
+	case 0x19:	ADD16(IX, DE);				CYCLES += 8;	break;
 
 	case 0x21:	//ld IX,nn
 		IX = read16(PC);
@@ -761,8 +761,8 @@ __inline void step_dd()
 		IX = (read8(PC++) << 8) | (IX & 0xFF);
 		CYCLES += 10;
 		break;
-	case 0x29:	ADD16(IX, IX);	CYCLES += 6;	break;
-	case 0x39:	ADD16(IX, SP);	CYCLES += 7;	break;
+	case 0x29:	ADD16(IX, IX);	CYCLES += 8;	break;
+	case 0x39:	ADD16(IX, SP);	CYCLES += 8;	break;
 
 	case 0x2A:	//ld IX,(nn)
 		IX = read16(read16(PC));
@@ -933,65 +933,65 @@ __inline void step_dd()
 		CYCLES += 19;
 		break;
 	case 0x7F:	A = A;								CYCLES += 4;	break;
-	case 0x84:	ADD(IXH);							CYCLES += 9;	break;
-	case 0x85:	ADD(IXL);							CYCLES += 9;	break;
+	case 0x84:	ADD(IXH);							CYCLES += 8;	break;
+	case 0x85:	ADD(IXL);							CYCLES += 8;	break;
 	case 0x86:	//add a,(IX+d)
 		ltmp = (unsigned long)(unsigned short)((signed short)IX + (signed char)read8(PC++));
 		ADD(read8(ltmp));
 		CYCLES += 19;
 		break;
-	case 0x8C:	ADC(IXH);							CYCLES += 9;	break;
-	case 0x8D:	ADC(IXL);							CYCLES += 9;	break;
+	case 0x8C:	ADC(IXH);							CYCLES += 8;	break;
+	case 0x8D:	ADC(IXL);							CYCLES += 8;	break;
 	case 0x8E:	//adc a,(IX+d)
 		ltmp = (unsigned long)(unsigned short)((signed short)IX + (signed char)read8(PC++));
 		ADC(read8(ltmp));
 		CYCLES += 19;
 		break;
-	case 0x94:	SUB(IXH);							CYCLES += 9;	break;
-	case 0x95:	SUB(IXL);							CYCLES += 9;	break;
+	case 0x94:	SUB(IXH);							CYCLES += 8;	break;
+	case 0x95:	SUB(IXL);							CYCLES += 8;	break;
 	case 0x96:	//sub a,(IX+d)
 		ltmp = (unsigned long)(unsigned short)((signed short)IX + (signed char)read8(PC++));
 		SUB(read8(ltmp));
 		CYCLES += 19;
 		break;
-	case 0x9C:	SBC(IXH);							CYCLES += 9;	break;
-	case 0x9D:	SBC(IXL);							CYCLES += 9;	break;
+	case 0x9C:	SBC(IXH);							CYCLES += 8;	break;
+	case 0x9D:	SBC(IXL);							CYCLES += 8;	break;
 	case 0x9E:	//sbc a,(IX+d)
 		ltmp = (unsigned long)(unsigned short)((signed short)IX + (signed char)read8(PC++));
 		SBC(read8(ltmp));
 		CYCLES += 19;
 		break;
-	case 0xA4:	AND(IXH);							CYCLES += 9;	break;
-	case 0xA5:	AND(IXL);							CYCLES += 9;	break;
+	case 0xA4:	AND(IXH);							CYCLES += 8;	break;
+	case 0xA5:	AND(IXL);							CYCLES += 8;	break;
 	case 0xA6:
 		ltmp = (unsigned long)(unsigned short)((signed short)IX + (signed char)read8(PC++));
 		tmp = read8(ltmp);
 		AND(tmp);
-		CYCLES += 14;
+		CYCLES += 19;
 		break;
-	case 0xAC:	XOR(IXH);							CYCLES += 9;	break;
-	case 0xAD:	XOR(IXL);							CYCLES += 9;	break;
+	case 0xAC:	XOR(IXH);							CYCLES += 8;	break;
+	case 0xAD:	XOR(IXL);							CYCLES += 8;	break;
 	case 0xAE:
 		ltmp = (unsigned long)(unsigned short)((signed short)IX + (signed char)read8(PC++));
 		tmp = read8(ltmp);
 		XOR(tmp);
-		CYCLES += 14;
+		CYCLES += 19;
 		break;
-	case 0xB4:	OR(IXH);							CYCLES += 9;	break;
-	case 0xB5:	OR(IXL);							CYCLES += 9;	break;
+	case 0xB4:	OR(IXH);							CYCLES += 8;	break;
+	case 0xB5:	OR(IXL);							CYCLES += 8;	break;
 	case 0xB6:
 		ltmp = (unsigned long)(unsigned short)((signed short)IX + (signed char)read8(PC++));
 		tmp = read8(ltmp);
 		OR(tmp);
-		CYCLES += 14;
+		CYCLES += 19;
 		break;
-	case 0xBC:	CP(IXH);							CYCLES += 9;	break;
-	case 0xBD:	CP(IXL);							CYCLES += 9;	break;
+	case 0xBC:	CP(IXH);							CYCLES += 8;	break;
+	case 0xBD:	CP(IXL);							CYCLES += 8;	break;
 	case 0xBE:
 		ltmp = (unsigned long)(unsigned short)((signed short)IX + (signed char)read8(PC++));
 		tmp = read8(ltmp);
 		CP(tmp);
-		CYCLES += 14;
+		CYCLES += 19;
 		break;
 	case 0xCB:	step_ddcb(); break;
 	case 0xE1:	//pop IX
@@ -1181,7 +1181,11 @@ __inline void step_ed()
 		tmp = read8(HL++);
 		stmp = A - tmp;
 		if (--BC && stmp) {
+			CYCLES += 21;
 			PC -= 2;
+		}
+		else {
+			CYCLES += 16;
 		}
 
 		F = (F & FLAG_C) | FLAG_N;
@@ -1194,7 +1198,6 @@ __inline void step_ed()
 		stmp -= (F >> 4) & 1;
 		F |= (stmp << 4) & 0x20;
 		F |= stmp & 0x08;
-		CYCLES += 16;
 		break;
 
 	case 0xB3:	//otir
@@ -1226,6 +1229,10 @@ __inline void step_ed()
 		stmp = A - tmp;
 		if (--BC && stmp) {
 			PC -= 2;
+			CYCLES += 21;
+		}
+		else {
+			CYCLES += 16;
 		}
 
 		F = (F & FLAG_C) | FLAG_N;
@@ -1238,7 +1245,6 @@ __inline void step_ed()
 		stmp -= (F >> 4) & 1;
 		F |= (stmp << 4) & 0x20;
 		F |= stmp & 0x08;
-		CYCLES += 16;
 		break;
 
 	default:
@@ -1472,8 +1478,8 @@ __inline void step_fd()
 	unsigned long ltmp, otmp;
 
 	switch (opcode) {
-	case 0x09:	ADD16(IY, BC);	CYCLES += 7;	break;
-	case 0x19:	ADD16(IY, DE);	CYCLES += 11;	break;
+	case 0x09:	ADD16(IY, BC);	CYCLES += 8;	break;
+	case 0x19:	ADD16(IY, DE);	CYCLES += 8;	break;
 	case 0x21:	//ld IY,nn
 		IY = read16(PC);
 		PC += 2;
@@ -1501,7 +1507,7 @@ __inline void step_fd()
 		IY = (read8(PC++) << 8) | (IY & 0xFF);
 		CYCLES += 10;
 		break;
-	case 0x29:	ADD16(IY, IY);	CYCLES += 6;	break;
+	case 0x29:	ADD16(IY, IY);	CYCLES += 8;	break;
 	case 0x2A:	//ld IY,(nn)
 		IY = read16(read16(PC));
 		PC += 2;
@@ -1546,7 +1552,7 @@ __inline void step_fd()
 		write8(ltmp, read8(PC++));
 		CYCLES += 19;
 		break;
-	case 0x39:	ADD16(IY, SP);	CYCLES += 7;	break;
+	case 0x39:	ADD16(IY, SP);	CYCLES += 8;	break;
 
 	case 0x40:	B = B;								CYCLES += 4;	break;
 	case 0x41:	B = C;								CYCLES += 4;	break;
@@ -1670,65 +1676,65 @@ __inline void step_fd()
 		break;
 	case 0x7F:	A = A;								CYCLES += 4;	break;
 
-	case 0x84:	ADD(IYH);							CYCLES += 9;	break;
-	case 0x85:	ADD(IYL);							CYCLES += 9;	break;
+	case 0x84:	ADD(IYH);							CYCLES += 8;	break;
+	case 0x85:	ADD(IYL);							CYCLES += 8;	break;
 	case 0x86:	//add a,(IY+d)
 		ltmp = (unsigned long)(unsigned short)((signed short)IY + (signed char)read8(PC++));
 		ADD(read8(ltmp));
 		CYCLES += 19;
 		break;
-	case 0x8C:	ADC(IYH);							CYCLES += 9;	break;
-	case 0x8D:	ADC(IYL);							CYCLES += 9;	break;
+	case 0x8C:	ADC(IYH);							CYCLES += 8;	break;
+	case 0x8D:	ADC(IYL);							CYCLES += 8;	break;
 	case 0x8E:	//adc a,(IY+d)
 		ltmp = (unsigned long)(unsigned short)((signed short)IY + (signed char)read8(PC++));
 		ADC(read8(ltmp));
 		CYCLES += 19;
 		break;
-	case 0x94:	SUB(IYH);							CYCLES += 9;	break;
-	case 0x95:	SUB(IYL);							CYCLES += 9;	break;
+	case 0x94:	SUB(IYH);							CYCLES += 8;	break;
+	case 0x95:	SUB(IYL);							CYCLES += 8;	break;
 	case 0x96:	//sub a,(IY+d)
 		ltmp = (unsigned long)(unsigned short)((signed short)IY + (signed char)read8(PC++));
 		SUB(read8(ltmp));
 		CYCLES += 19;
 		break;
-	case 0x9C:	SBC(IYH);							CYCLES += 9;	break;
-	case 0x9D:	SBC(IYL);							CYCLES += 9;	break;
+	case 0x9C:	SBC(IYH);							CYCLES += 8;	break;
+	case 0x9D:	SBC(IYL);							CYCLES += 8;	break;
 	case 0x9E:	//sbc a,(IY+d)
 		ltmp = (unsigned long)(unsigned short)((signed short)IY + (signed char)read8(PC++));
 		SBC(read8(ltmp));
 		CYCLES += 19;
 		break;
-	case 0xA4:	AND(IYH);							CYCLES += 9;	break;
-	case 0xA5:	AND(IYL);							CYCLES += 9;	break;
+	case 0xA4:	AND(IYH);							CYCLES += 8;	break;
+	case 0xA5:	AND(IYL);							CYCLES += 8;	break;
 	case 0xA6:
 		ltmp = (unsigned long)(unsigned short)((signed short)IY + (signed char)read8(PC++));
 		tmp = read8(ltmp);
 		AND(tmp);
-		CYCLES += 14;
+		CYCLES += 19;
 		break;
-	case 0xAC:	XOR(IYH);							CYCLES += 9;	break;
-	case 0xAD:	XOR(IYL);							CYCLES += 9;	break;
+	case 0xAC:	XOR(IYH);							CYCLES += 8;	break;
+	case 0xAD:	XOR(IYL);							CYCLES += 8;	break;
 	case 0xAE:
 		ltmp = (unsigned long)(unsigned short)((signed short)IY + (signed char)read8(PC++));
 		tmp = read8(ltmp);
 		XOR(tmp);
-		CYCLES += 14;
+		CYCLES += 19;
 		break;
-	case 0xB4:	OR(IYH);							CYCLES += 9;	break;
-	case 0xB5:	OR(IYL);							CYCLES += 9;	break;
+	case 0xB4:	OR(IYH);							CYCLES += 8;	break;
+	case 0xB5:	OR(IYL);							CYCLES += 8;	break;
 	case 0xB6:
 		ltmp = (unsigned long)(unsigned short)((signed short)IY + (signed char)read8(PC++));
 		tmp = read8(ltmp);
 		OR(tmp);
-		CYCLES += 14;
+		CYCLES += 19;
 		break;
-	case 0xBC:	CP(IYH);							CYCLES += 9;	break;
-	case 0xBD:	CP(IYL);							CYCLES += 9;	break;
+	case 0xBC:	CP(IYH);							CYCLES += 8;	break;
+	case 0xBD:	CP(IYL);							CYCLES += 8;	break;
 	case 0xBE:
 		ltmp = (unsigned long)(unsigned short)((signed short)IY + (signed char)read8(PC++));
 		tmp = read8(ltmp);
 		CP(tmp);
-		CYCLES += 14;
+		CYCLES += 19;
 		break;
 	case 0xCB:	return(step_fdcb());
 	case 0xE1:	//pop IY
@@ -1814,6 +1820,7 @@ void deadz80_step()
 
 	case 0x09:	//add hl,bc
 		ADD16(HL, BC);
+		CYCLES += 4;
 		break;
 
 	case 0x0A:	//ld a,(bc)
@@ -1939,6 +1946,7 @@ void deadz80_step()
 		if (parity[A])
 			F |= FLAG_P;
 	}
+		CYCLES += 4;
 		break;
 
 	case 0x28:	//jr z,simm8
@@ -2030,7 +2038,7 @@ void deadz80_step()
 
 	case 0x39:	//add hl,SP
 		ADD16(HL, SP);
-		CYCLES += 7;
+		CYCLES += 4;
 		break;
 
 	case 0x3A:	//ld a,(nn)
@@ -2184,7 +2192,7 @@ void deadz80_step()
 	case 0xC3:	JP(read16(PC));					CYCLES += 0;	break;
 	case 0xC4:	CALL((F & FLAG_Z) == 0);							break;
 	case 0xC5:	PUSH16(BC);							CYCLES += 11;	break;
-	case 0xC6:	tmp = read8(PC++); ADD(tmp);	CYCLES += 4;	break;
+	case 0xC6:	tmp = read8(PC++); ADD(tmp);	CYCLES += 7;	break;
 	case 0xC7:	RST(0x00);												break;
 	case 0xC8:	RET((F & FLAG_Z) != 0);								break;
 	case 0xC9:	RET(1);	CYCLES -= 1;								break;
@@ -2204,7 +2212,7 @@ void deadz80_step()
 		break;
 	case 0xD4:	CALL((F & FLAG_C) == 0);							break;
 	case 0xD5:	PUSH16(DE);							CYCLES += 11;	break;
-	case 0xD6:	SUB(read8(PC++));					CYCLES += 14;	break;
+	case 0xD6:	SUB(read8(PC++));					CYCLES += 7;	break;
 	case 0xD7:	RST(0x10);												break;
 	case 0xD8:	RET((F & FLAG_C) != 0);								break;
 	case 0xD9:	EXX();													break;
@@ -2216,7 +2224,7 @@ void deadz80_step()
 		break;
 	case 0xDC:	CALL((F & FLAG_C) != 0);							break;
 	case 0xDD:	step_dd();												break;
-	case 0xDE:	tmp2 = read8(PC++); SBC(tmp2); CYCLES += 4;	break;
+	case 0xDE:	tmp2 = read8(PC++); SBC(tmp2); CYCLES += 7;	break;
 	case 0xDF:	RST(0x18);												break;
 	case 0xE0:	RET((F & FLAG_P) == 0);								break;
 	case 0xE1:	POP16(HL);							CYCLES += 10;	break;
