@@ -343,12 +343,12 @@ F |= (tmp ? 0 : FLAG_Z | FLAG_P) | (tmp & FLAG_S); \
 	tmp = read8(ltmp);	\
 	SET(b,tmp);					\
 	write8(ltmp,tmp);		\
-	CYCLES += 19;
+	CYCLES += 23;
 
 #define RES_IDX(b)	\
 	tmp = read8(ltmp);	\
 	RES(b,tmp);					\
 	write8(ltmp,tmp);		\
-	CYCLES += 19;
+	CYCLES += 23;
 
 #endif
