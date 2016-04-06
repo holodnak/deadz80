@@ -215,7 +215,7 @@ int main(int argc, char *argv[])
 		if (state.registers.word[2] != z80->regs->hl.w)	{ printf("hl doesnt match $%04X should be $%04X\n", z80->regs->hl.w, state.registers.word[2]); error = 1; };
 		if (state.registers.word[4] != z80->ix.w)	{ printf("ix doesnt match $%04X should be $%04X\n", z80->ix.w, state.registers.word[4]); error = 1; };
 		if (state.registers.word[5] != z80->iy.w)	{ printf("iy doesnt match $%04X should be $%04X\n", z80->iy.w, state.registers.word[5]); error = 1; };
-		if (error && memcmp(mem, memory, 0x10000) != 0) {
+		if (memcmp(mem, memory, 0x10000) != 0) {
 			int n;
 
 			printf("memory different!\n");

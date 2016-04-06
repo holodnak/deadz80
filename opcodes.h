@@ -41,7 +41,10 @@
 
 //some opcode helper macros
 #define OP_OUT(l,h,v)	\
-	z80->iowritefunc(l | (h << 8),v);
+	if(z80->iowritefunc) \
+		z80->iowritefunc(l | (h << 8),v); \
+	else \
+		printf("deadz80:  out opcode:  no iowritefunc assigned\n");
 
 
 

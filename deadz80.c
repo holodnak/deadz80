@@ -75,13 +75,14 @@ unsigned char parity[256] = {
 void deadz80_init()
 {
 	z80 = &internalz80;		//setup cpu context
+	memset(z80, 0, sizeof(deadz80_t));
 	z80->regs = &z80->main;
-	memset(z80,0,sizeof(deadz80_t));
 }
 
 void deadz80_setcontext(deadz80_t *z)
 {
 	z80 = z;
+	z80->regs = &z80->main;		//todo: flag to know which is currently active register set
 }
 
 deadz80_t *deadz80_getcontext()
@@ -197,6 +198,7 @@ void deadz80_irq()
 	switch (INTMODE) {
 	case 0:
 		INSIDEIRQ = 1;
+//		printf("im 0: %s\n", z80->tag);
 		deadz80_step();
 		break;
 	case 1:
@@ -204,6 +206,7 @@ void deadz80_irq()
 		write8(--SP, (PC >> 0) & 0xFF);
 		PC = 0x0038;
 		CYCLES += 13;
+//		printf("im 1: %s\n", z80->tag);
 		break;
 	case 2:
 		printf("im 2 not done\n");
@@ -1046,6 +1049,11 @@ __inline void step_ed()
 		PC += 2;
 		CYCLES += 20;
 		break;
+	case 0x4D:	//TODO: is this complete?  reti
+		PC = read8(SP + 0) | (read8(SP + 1) << 8);
+		SP += 2;
+		CYCLES += 14;
+		break;
 	case 0x53:	//ld (nn),de
 		write16(read16(PC), DE);
 		PC += 2;
@@ -1767,7 +1775,7 @@ void deadz80_step()
 	register u8 tmp8;
 
 	if (INSIDEIRQ) {
-		OPCODE = z80->irqfunc();
+		OPCODE = z80->irqfunc(IRQSTATE);
 		INSIDEIRQ = 0;
 	}
 	else

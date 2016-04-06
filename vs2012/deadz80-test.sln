@@ -1,32 +1,58 @@
 ﻿
 Microsoft Visual Studio Solution File, Format Version 12.00
-# Visual Studio 2013
-VisualStudioVersion = 12.0.30723.0
+# Visual Studio 14
+VisualStudioVersion = 14.0.22823.1
 MinimumVisualStudioVersion = 10.0.40219.1
 Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "deadz80-test", "deadz80-test.vcxproj", "{B874B4CB-AAE6-498F-A451-6795620E8E88}"
 EndProject
-Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "1942emu", "..\..\1942emu\1942emu.vcxproj", "{C136EE9D-1C81-445E-8773-659FCBF5ABE0}"
+Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "1942emu", "..\..\1942emu\vs2013\1942emu.vcxproj", "{17C01C4F-2626-43C1-B5F5-A52222F85035}"
 EndProject
-Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "deadlib", "..\..\deadlib\deadlib\deadlib.vcxproj", "{526941DD-7E02-44A7-B7A9-E601A8B38CB0}"
+Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "1943emu", "..\..\1943emu\vs2015\1943emu.vcxproj", "{06A4BAD2-930A-4414-9059-AB9769E0713D}"
+EndProject
+Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "emulib", "..\..\emulib\vs2015\emulib.vcxproj", "{ED416EFA-D823-41A2-895E-B7CA103D52F3}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
+		Debug|ARM = Debug|ARM
 		Debug|Win32 = Debug|Win32
+		Debug|x64 = Debug|x64
+		Release|ARM = Release|ARM
 		Release|Win32 = Release|Win32
+		Release|x64 = Release|x64
 	EndGlobalSection
 	GlobalSection(ProjectConfigurationPlatforms) = postSolution
+		{B874B4CB-AAE6-498F-A451-6795620E8E88}.Debug|ARM.ActiveCfg = Debug|Win32
 		{B874B4CB-AAE6-498F-A451-6795620E8E88}.Debug|Win32.ActiveCfg = Debug|Win32
 		{B874B4CB-AAE6-498F-A451-6795620E8E88}.Debug|Win32.Build.0 = Debug|Win32
+		{B874B4CB-AAE6-498F-A451-6795620E8E88}.Debug|x64.ActiveCfg = Debug|Win32
+		{B874B4CB-AAE6-498F-A451-6795620E8E88}.Release|ARM.ActiveCfg = Release|Win32
 		{B874B4CB-AAE6-498F-A451-6795620E8E88}.Release|Win32.ActiveCfg = Release|Win32
 		{B874B4CB-AAE6-498F-A451-6795620E8E88}.Release|Win32.Build.0 = Release|Win32
-		{C136EE9D-1C81-445E-8773-659FCBF5ABE0}.Debug|Win32.ActiveCfg = Debug|Win32
-		{C136EE9D-1C81-445E-8773-659FCBF5ABE0}.Debug|Win32.Build.0 = Debug|Win32
-		{C136EE9D-1C81-445E-8773-659FCBF5ABE0}.Release|Win32.ActiveCfg = Release|Win32
-		{C136EE9D-1C81-445E-8773-659FCBF5ABE0}.Release|Win32.Build.0 = Release|Win32
-		{526941DD-7E02-44A7-B7A9-E601A8B38CB0}.Debug|Win32.ActiveCfg = Debug|Win32
-		{526941DD-7E02-44A7-B7A9-E601A8B38CB0}.Debug|Win32.Build.0 = Debug|Win32
-		{526941DD-7E02-44A7-B7A9-E601A8B38CB0}.Release|Win32.ActiveCfg = Release|Win32
-		{526941DD-7E02-44A7-B7A9-E601A8B38CB0}.Release|Win32.Build.0 = Release|Win32
+		{B874B4CB-AAE6-498F-A451-6795620E8E88}.Release|x64.ActiveCfg = Release|Win32
+		{17C01C4F-2626-43C1-B5F5-A52222F85035}.Debug|ARM.ActiveCfg = Debug|Win32
+		{17C01C4F-2626-43C1-B5F5-A52222F85035}.Debug|Win32.ActiveCfg = Debug|Win32
+		{17C01C4F-2626-43C1-B5F5-A52222F85035}.Debug|Win32.Build.0 = Debug|Win32
+		{17C01C4F-2626-43C1-B5F5-A52222F85035}.Debug|x64.ActiveCfg = Debug|Win32
+		{17C01C4F-2626-43C1-B5F5-A52222F85035}.Release|ARM.ActiveCfg = Release|Win32
+		{17C01C4F-2626-43C1-B5F5-A52222F85035}.Release|Win32.ActiveCfg = Release|Win32
+		{17C01C4F-2626-43C1-B5F5-A52222F85035}.Release|Win32.Build.0 = Release|Win32
+		{17C01C4F-2626-43C1-B5F5-A52222F85035}.Release|x64.ActiveCfg = Release|Win32
+		{06A4BAD2-930A-4414-9059-AB9769E0713D}.Debug|ARM.ActiveCfg = Debug|Win32
+		{06A4BAD2-930A-4414-9059-AB9769E0713D}.Debug|Win32.ActiveCfg = Debug|Win32
+		{06A4BAD2-930A-4414-9059-AB9769E0713D}.Debug|Win32.Build.0 = Debug|Win32
+		{06A4BAD2-930A-4414-9059-AB9769E0713D}.Debug|x64.ActiveCfg = Debug|Win32
+		{06A4BAD2-930A-4414-9059-AB9769E0713D}.Release|ARM.ActiveCfg = Release|Win32
+		{06A4BAD2-930A-4414-9059-AB9769E0713D}.Release|Win32.ActiveCfg = Release|Win32
+		{06A4BAD2-930A-4414-9059-AB9769E0713D}.Release|Win32.Build.0 = Release|Win32
+		{06A4BAD2-930A-4414-9059-AB9769E0713D}.Release|x64.ActiveCfg = Release|Win32
+		{ED416EFA-D823-41A2-895E-B7CA103D52F3}.Debug|ARM.ActiveCfg = Debug|Win32
+		{ED416EFA-D823-41A2-895E-B7CA103D52F3}.Debug|Win32.ActiveCfg = Debug|Win32
+		{ED416EFA-D823-41A2-895E-B7CA103D52F3}.Debug|Win32.Build.0 = Debug|Win32
+		{ED416EFA-D823-41A2-895E-B7CA103D52F3}.Debug|x64.ActiveCfg = Debug|Win32
+		{ED416EFA-D823-41A2-895E-B7CA103D52F3}.Release|ARM.ActiveCfg = Release|Win32
+		{ED416EFA-D823-41A2-895E-B7CA103D52F3}.Release|Win32.ActiveCfg = Release|Win32
+		{ED416EFA-D823-41A2-895E-B7CA103D52F3}.Release|Win32.Build.0 = Release|Win32
+		{ED416EFA-D823-41A2-895E-B7CA103D52F3}.Release|x64.ActiveCfg = Release|Win32
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE

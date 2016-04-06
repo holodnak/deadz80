@@ -11,7 +11,7 @@ typedef unsigned char u8;
 typedef unsigned short u16;
 typedef unsigned int u32;
 
-typedef u8 (*irqfunc_t)();
+typedef u8 (*irqfunc_t)(u8);
 typedef u8 (*readfunc_t)(u32);
 typedef void (*writefunc_t)(u32,u8);
 
@@ -35,6 +35,7 @@ typedef struct z80regs_s {
 } z80regs_t;
 
 typedef struct deadz80_s {
+	char			tag[8];
 	z80regs_t	main, alt;				//register sets
 	z80regs_t	*regs;					//pointer to active register set
 	u16			pc, sp;					//program counter, stack pointer
@@ -74,6 +75,10 @@ extern "C" {
 	void deadz80_reset();
 	void deadz80_nmi();
 	void deadz80_irq();
+	void deadz80_set_nmi(u8 state);
+	void deadz80_clear_nmi(u8 state);
+	void deadz80_set_irq(u8 state);
+	void deadz80_clear_irq(u8 state);
 	void deadz80_step();
 	u32 deadz80_execute(u32 cycles);
 	u32 deadz80_disassemble(char *dest, u32 p);
